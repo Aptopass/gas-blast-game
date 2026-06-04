@@ -1,0 +1,1598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fart-O-Matic: Gus's Gas Blast! (EXTREME EDITION)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts for a cartoonish style -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+    <!-- Supabase CDN Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body {
+            font-family: 'Quicksand', sans-serif;
+        }
+        .font-cartoon {
+            font-family: 'Fredoka One', cursive;
+        }
+        @keyframes rumble {
+            0% { transform: translate(0px, 0px) rotate(0deg); }
+            20% { transform: translate(-2px, 2px) rotate(-1deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            60% { transform: translate(-1px, 2px) rotate(0deg); }
+            80% { transform: translate(2px, 1px) rotate(1deg); }
+            100% { transform: translate(0px, 0px) rotate(0deg); }
+        }
+        .rumbling {
+            animation: rumble 0.15s infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        .floating-bubble {
+            animation: float 3s ease-in-out infinite;
+        }
+        /* Sweat droplet drip animation */
+        @keyframes drip {
+            0% { transform: translateY(0) scale(1); opacity: 0; }
+            30% { opacity: 1; }
+            100% { transform: translateY(25px) scale(0.6); opacity: 0; }
+        }
+        .sweat-drop {
+            animation: drip 1.5s infinite ease-in;
+        }
+        /* Custom styled transition for shop drawer */
+        .drawer-transition {
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-b from-yellow-100 via-orange-100 to-green-100 min-h-screen select-none overflow-x-hidden flex flex-col justify-between relative">
+
+    <!-- Ambient Room Toxicity Fog Overlay -->
+    <div id="toxicityFog" class="fixed inset-0 pointer-events-none bg-emerald-500/0 z-40 transition-colors duration-1000 mix-blend-color-burn"></div>
+
+    <!-- Top Dashboard Header -->
+    <header class="p-3 md:p-4 flex justify-between items-center w-full max-w-4xl mx-auto z-10 relative">
+        <div class="flex flex-col gap-1">
+            <div class="flex items-center gap-2 bg-white/90 backdrop-blur px-4 py-2 rounded-full shadow-md border border-orange-200">
+                <span class="text-xl md:text-2xl font-cartoon text-green-600">💨 Gus's Gas Blast!</span>
+                <span class="bg-red-500 text-white font-cartoon text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider animate-pulse">EXTREME</span>
+            </div>
+            <!-- Room Toxicity Bar -->
+            <div class="flex items-center gap-2 bg-white/80 backdrop-blur px-3 py-1 rounded-full shadow-sm text-xs mt-1 border border-emerald-100">
+                <span class="font-bold text-emerald-700">☣️ ROOM STINK:</span>
+                <div class="w-24 h-3 bg-gray-200 rounded-full overflow-hidden border border-gray-300">
+                    <div id="toxicityBar" class="h-full bg-gradient-to-r from-emerald-400 to-green-700 w-0 transition-all duration-500"></div>
+                </div>
+                <span id="toxicityPercent" class="font-cartoon text-emerald-800 text-[10px]">0%</span>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+            <!-- Leaderboard Button -->
+            <button onclick="toggleLeaderboard(true)" class="bg-emerald-400 hover:bg-emerald-500 text-emerald-950 font-cartoon px-4 py-2.5 rounded-full shadow-md transition transform active:scale-95 flex items-center gap-1.5 border-b-4 border-emerald-600 text-sm">
+                <span>🏆</span> <span class="hidden sm:inline">LEADERS</span>
+            </button>
+            <!-- Shop Button -->
+            <button onclick="toggleShop(true)" class="bg-amber-400 hover:bg-amber-500 text-amber-950 font-cartoon px-4 py-2.5 rounded-full shadow-md transition transform active:scale-95 flex items-center gap-1.5 border-b-4 border-amber-600 text-sm">
+                <span>🛒</span> <span class="hidden sm:inline">GAS SHOP</span>
+            </button>
+            <!-- Skins Button -->
+            <button onclick="toggleSkins(true)" class="bg-blue-400 hover:bg-blue-500 text-blue-950 font-cartoon px-4 py-2.5 rounded-full shadow-md transition transform active:scale-95 flex items-center gap-1.5 border-b-4 border-blue-600 text-sm">
+                <span>👕</span> <span class="hidden sm:inline">SKINS</span>
+            </button>
+            <button id="muteBtn" onclick="toggleMute()" class="bg-white/90 hover:bg-white p-2.5 rounded-full shadow-md transition transform active:scale-95 text-lg border border-gray-200">
+                🔊
+            </button>
+            <button id="helpBtn" onclick="showHelpModal(true)" class="bg-white/90 hover:bg-white p-2.5 rounded-full shadow-md transition transform active:scale-95 text-lg font-cartoon text-blue-600 border border-gray-200">
+                ?
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Game Workspace -->
+    <main class="flex-1 flex flex-col items-center justify-center p-3 md:p-4 w-full max-w-4xl mx-auto relative">
+        
+        <!-- Score & High Score Row -->
+        <div class="w-full flex justify-between items-center mb-2 px-2">
+            <div class="bg-yellow-500 text-white font-cartoon px-4 py-2 rounded-2xl shadow-lg border-2 border-yellow-600 transform -rotate-1 text-sm md:text-base">
+                SCORE: <span id="scoreText">0</span>
+            </div>
+            <div class="bg-green-500 text-white font-cartoon px-4 py-2 rounded-2xl shadow-lg border-2 border-green-600 transform rotate-1 text-sm md:text-base">
+                BEST FART: <span id="bestFartText">0</span> L
+            </div>
+        </div>
+
+        <!-- Dynamic Game Canvas Overlay (For Gas Particles and Farts!) -->
+        <canvas id="particleCanvas" class="absolute inset-0 w-full h-full pointer-events-none z-0"></canvas>
+
+        <!-- Play Area Wrapper -->
+        <div class="w-full bg-white/50 backdrop-blur-sm rounded-3xl p-5 border-4 border-dashed border-orange-300 flex flex-col items-center justify-between min-h-[460px] relative z-10 shadow-xl">
+            
+            <!-- Character Speech & Demand Bubble -->
+            <div id="demandBubble" class="bg-white text-gray-800 border-4 border-amber-400 px-6 py-2.5 rounded-2xl shadow-lg relative max-w-xs text-center font-cartoon floating-bubble mb-3 z-20">
+                <p id="demandText" class="text-xs md:text-sm text-amber-800">I hunger! Bring me something gas-forming!</p>
+                <!-- Triangle anchor for speech bubble -->
+                <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-full w-0 h-0 border-t-[12px] border-t-white border-x-[12px] border-x-transparent z-10"></div>
+                <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-[15px] w-0 h-0 border-t-[12px] border-t-amber-400 border-x-[12px] border-x-transparent z-0"></div>
+            </div>
+
+            <!-- Gassy Character Container -->
+            <div id="charContainer" class="relative w-64 h-64 md:w-76 md:h-76 flex items-center justify-center">
+                
+                <!-- Sweat Droplets overlay (shown when critical) -->
+                <div id="sweatGroup" class="absolute inset-0 pointer-events-none hidden z-10">
+                    <span class="absolute top-1/4 left-1/3 text-lg sweat-drop">💧</span>
+                    <span class="absolute top-1/4 right-1/3 text-lg sweat-drop" style="animation-delay: 0.5s;">💧</span>
+                </div>
+
+                <!-- Swelling/Rumbling Cartoon Boy SVG -->
+                <svg id="gusSvg" class="w-full h-full transition-transform duration-200 origin-bottom" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Base Character Group -->
+                    <g id="gusBodyGroup">
+                        
+                        <!-- HAIR SECTION -->
+                        <g id="hairClassic">
+                            <path d="M70,55 Q100,20 130,55 Q115,45 100,50 Q85,45 70,55 Z" fill="#8d5524" stroke="#5c3a16" stroke-width="2"/>
+                            <circle cx="100" cy="45" r="8" fill="#8d5524" />
+                        </g>
+                        <g id="hairToxic" class="hidden">
+                            <path d="M65,55 Q100,10 135,55 Q110,35 100,45 Q90,35 65,55 Z" fill="#c0ca33" stroke="#827717" stroke-width="2"/>
+                            <circle cx="100" cy="35" r="10" fill="#aebd20" />
+                        </g>
+                        <g id="hairGrandpa" class="hidden">
+                            <!-- Bald head with side gray curls -->
+                            <ellipse cx="65" cy="65" rx="8" ry="12" fill="#eceff1" stroke="#b0bec5" stroke-width="2" />
+                            <ellipse cx="135" cy="65" rx="8" ry="12" fill="#eceff1" stroke="#b0bec5" stroke-width="2" />
+                        </g>
+
+                        <!-- EARS -->
+                        <circle id="earLeft" cx="65" cy="85" r="10" fill="#fbc3a6" stroke="#e09e7c" stroke-width="2" />
+                        <circle id="earRight" cx="135" cy="85" r="10" fill="#fbc3a6" stroke="#e09e7c" stroke-width="2" />
+                        
+                        <!-- FACE/HEAD -->
+                        <circle id="headSkin" cx="100" cy="85" r="33" fill="#fbc3a6" stroke="#e09e7c" stroke-width="3" />
+                        
+                        <!-- Grandpa glasses/mustache layer -->
+                        <g id="grandpaSpecs" class="hidden">
+                            <circle cx="86" cy="80" r="12" fill="none" stroke="#263238" stroke-width="2" />
+                            <circle cx="114" cy="80" r="12" fill="none" stroke="#263238" stroke-width="2" />
+                            <line x1="98" y1="80" x2="102" y2="80" stroke="#263238" stroke-width="3" />
+                            <!-- Big Gray Mustache -->
+                            <path d="M85,95 Q100,85 100,95 Q100,85 115,95 Q125,103 100,101 Q75,103 85,95 Z" fill="#eceff1" stroke="#cfd8dc" stroke-width="2" />
+                        </g>
+
+                        <!-- EYES SECTION -->
+                        <g id="gusEyes">
+                            <g id="eyesNormal">
+                                <circle cx="90" cy="80" r="4.5" fill="#111" />
+                                <circle cx="91.5" cy="78" r="1.5" fill="#fff" />
+                                <circle cx="110" cy="80" r="4.5" fill="#111" />
+                                <circle cx="111.5" cy="78" r="1.5" fill="#fff" />
+                                <path id="eyebrowLeft" d="M83,73 Q90,70 97,74" fill="none" stroke="#5c3a16" stroke-width="2" stroke-linecap="round"/>
+                                <path id="eyebrowRight" d="M103,74 Q110,70 117,73" fill="none" stroke="#5c3a16" stroke-width="2" stroke-linecap="round"/>
+                            </g>
+                            <g id="eyesGassy" class="hidden">
+                                <path d="M84,83 L94,77 M84,77 L94,83" fill="none" stroke="#8a1111" stroke-width="3" stroke-linecap="round"/>
+                                <path d="M106,83 L116,77 M106,77 L116,83" fill="none" stroke="#8a1111" stroke-width="3" stroke-linecap="round"/>
+                                <path d="M82,71 Q90,75 96,70" fill="none" stroke="#5c3a16" stroke-width="2" stroke-linecap="round"/>
+                                <path d="M104,70 Q110,75 118,71" fill="none" stroke="#5c3a16" stroke-width="2" stroke-linecap="round"/>
+                            </g>
+                            <g id="eyesHappy" class="hidden">
+                                <path d="M84,81 Q90,75 96,81" fill="none" stroke="#111" stroke-width="3" stroke-linecap="round"/>
+                                <path d="M104,81 Q110,75 116,81" fill="none" stroke="#111" stroke-width="3" stroke-linecap="round"/>
+                            </g>
+                        </g>
+
+                        <!-- CHEEKS (Blush / inflation level) -->
+                        <ellipse id="leftCheek" cx="77" cy="88" rx="7" ry="5" fill="#ff7f7f" opacity="0.3" />
+                        <ellipse id="rightCheek" cx="123" cy="88" rx="7" ry="5" fill="#ff7f7f" opacity="0.3" />
+
+                        <!-- MOUTH SECTION -->
+                        <g id="gusMouth">
+                            <path id="mouthOpen" d="M90,95 Q100,110 110,95 Z" fill="#800" stroke="#500" stroke-width="2" />
+                            <path id="mouthMunch" d="M90,96 Q100,90 110,96" fill="none" stroke="#111" stroke-width="3" stroke-linecap="round" class="hidden"/>
+                            <path id="mouthHold" d="M92,98 L108,98" fill="none" stroke="#111" stroke-width="3" stroke-linecap="round" class="hidden"/>
+                        </g>
+
+                        <!-- STOMACH GROUP (swells independently via scaling) -->
+                        <g id="stomachGroup" transform="scale(1) translate(0,0)">
+                            <!-- Pants/Waistband -->
+                            <path id="bellyPants" d="M60,160 Q100,185 140,160 L135,185 L65,185 Z" fill="#2d68c4" stroke="#1a3f7a" stroke-width="3" />
+                            <!-- Shirt/Belly -->
+                            <path id="bellyBg" d="M62,115 C50,135 50,155 60,165 C80,180 120,180 140,165 C150,155 150,135 138,115 Z" fill="#ff9933" stroke="#d47313" stroke-width="3" />
+                            
+                            <!-- Striped details for Classic / Vest details for Hazmat / Suspenders for Grandpa -->
+                            <path id="shirtStripe1" d="M53,135 Q100,150 147,135" fill="none" stroke="#ffcc00" stroke-width="8" />
+                            <path id="shirtStripe2" d="M56,150 Q100,168 144,150" fill="none" stroke="#ffcc00" stroke-width="8" />
+                            
+                            <g id="toxicShirtAccents" class="hidden">
+                                <!-- Hazmat Warning Symbol on shirt -->
+                                <circle cx="100" cy="145" r="9" fill="#000" />
+                                <circle cx="100" cy="145" r="3" fill="#ffcc00" />
+                            </g>
+
+                            <g id="grandpaAccents" class="hidden">
+                                <!-- Suspenders -->
+                                <rect x="75" y="115" width="8" height="50" fill="#b71c1c" />
+                                <rect x="117" y="115" width="8" height="50" fill="#b71c1c" />
+                            </g>
+                            
+                            <circle id="bellyButton" cx="100" cy="155" r="5" fill="#d47313" opacity="0.5"/>
+                        </g>
+
+                        <!-- ARMS -->
+                        <g id="arms">
+                            <path id="armLeft" d="M65,115 Q45,130 55,145" fill="none" stroke="#ff9933" stroke-width="12" stroke-linecap="round" />
+                            <path id="armLeftSkin" d="M65,115 Q45,130 55,145" fill="none" stroke="#fbc3a6" stroke-width="8" stroke-linecap="round"/>
+                            
+                            <path id="armRight" d="M135,115 Q155,130 145,145" fill="none" stroke="#ff9933" stroke-width="12" stroke-linecap="round" />
+                            <path id="armRightSkin" d="M135,115 Q155,130 145,145" fill="none" stroke="#fbc3a6" stroke-width="8" stroke-linecap="round"/>
+                        </g>
+                    </g>
+                </svg>
+
+                <!-- Status Alerts -->
+                <div id="statusPopup" class="absolute hidden bg-red-500 text-white font-cartoon text-xs px-3 py-1 rounded-full shadow-lg border border-white animate-bounce">
+                    CRITICAL GAS!
+                </div>
+            </div>
+
+            <!-- Fart-O-Meter / Gas Gauge and Fart Launch Button -->
+            <div class="w-full flex flex-col items-center mt-2 max-w-md">
+                <div class="flex justify-between w-full text-xs font-cartoon text-gray-600 px-1 mb-1">
+                    <span>EMPTY 💨</span>
+                    <span id="gasPercentageText" class="text-orange-600">0% FULL</span>
+                    <span>BOOM! 🔥</span>
+                </div>
+                <!-- Progress Outer Bar -->
+                <div class="w-full h-8 bg-gray-200 rounded-full p-1 shadow-inner border border-gray-300 relative overflow-hidden">
+                    <div id="gasProgress" class="h-full rounded-full bg-gradient-to-r from-green-400 via-yellow-400 to-red-500 transition-all duration-300 w-0 relative">
+                        <div class="absolute inset-0 bg-white/20 opacity-40 bg-[radial-gradient(circle,_transparent_20%,_white_20%,_white_30%,_transparent_32%,_transparent_100%)] bg-[length:15px_15px]"></div>
+                    </div>
+                </div>
+
+                <!-- BIG FART RELEASE BUTTON -->
+                <button id="fartBtn" onclick="initiateFartSequence()" class="mt-4 w-full bg-red-600 hover:bg-red-700 text-white font-cartoon text-lg md:text-xl py-3.5 rounded-2xl shadow-xl border-b-8 border-red-800 transition transform active:scale-95 flex items-center justify-center gap-2 relative overflow-hidden group">
+                    <span class="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></span>
+                    <span>💨 RELEASE THE FART! 💨</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Food Selection Container -->
+        <div class="w-full mt-4 bg-white/70 backdrop-blur rounded-2xl p-4 shadow-lg border-2 border-orange-200 z-10">
+            <h3 class="text-center font-cartoon text-gray-700 text-xs md:text-sm mb-2">👇 TAP A FOOD TO FEED HIM! 👇</h3>
+            <div id="foodTray" class="grid grid-cols-4 gap-2 justify-items-center">
+                <!-- Injected dynamically by JavaScript -->
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Interactive Footer -->
+    <footer class="p-3 text-center text-[10px] text-gray-500 font-medium w-full relative z-10">
+        Feed him high gas foods matching his craving for a 2x Bonus. Blast at high gas for massive points!
+    </footer>
+
+    <!-- INTERACTIVE MINI-GAME: FART POWER METER MODAL (QTE) -->
+    <div id="qteModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-opacity duration-300 hidden">
+        <div class="bg-gradient-to-b from-gray-900 to-slate-800 rounded-3xl p-6 max-w-sm w-full shadow-2xl border-4 border-orange-500 text-center text-white relative">
+            <div class="absolute -top-10 left-1/2 transform -translate-x-1/2 text-5xl">⚡</div>
+            <h2 class="text-2xl font-cartoon text-orange-400 mb-2">MAXIMUM compression!</h2>
+            <p class="text-gray-300 text-xs mb-4">Tap <span class="text-red-400 font-bold">BLAST NOW</span> when the dial reaches the red <span class="text-red-500 font-bold">MEGA ZONE</span> for 1.5x score!</p>
+            
+            <!-- Dial Tracker -->
+            <div class="w-full bg-gray-700 h-10 rounded-xl relative overflow-hidden mb-6 border border-gray-600">
+                <!-- Color zones -->
+                <div class="absolute inset-y-0 left-0 w-[40%] bg-gray-500/50"></div>
+                <div class="absolute inset-y-0 left-[40%] w-[35%] bg-yellow-500/50"></div>
+                <div class="absolute inset-y-0 left-[75%] w-[20%] bg-red-600/70 border-x-2 border-yellow-300"></div>
+                <div class="absolute inset-y-0 left-[95%] w-[5%] bg-gray-500/50"></div>
+
+                <!-- Labels -->
+                <div class="absolute inset-0 flex justify-between items-center text-[9px] font-cartoon text-white/50 px-3 pointer-events-none">
+                    <span>PUFF</span>
+                    <span>SWEET SPOT</span>
+                    <span>MEGA</span>
+                </div>
+
+                <!-- Slider Dial pointer -->
+                <div id="qtePointer" class="absolute top-0 bottom-0 w-2.5 bg-yellow-300 border-x border-black shadow-lg shadow-yellow-400" style="left: 0%;"></div>
+            </div>
+
+            <button onclick="commitFartBlast()" class="w-full bg-gradient-to-r from-amber-500 to-red-500 hover:from-amber-600 hover:to-red-600 text-white font-cartoon text-xl py-4 rounded-2xl border-b-4 border-red-700 transition transform active:scale-95 animate-pulse shadow-lg">
+                🔥 BLAST NOW! 🔥
+            </button>
+        </div>
+    </div>
+
+    <!-- GAS SHOP DRAWER -->
+    <div id="shopDrawer" class="fixed top-0 bottom-0 right-0 w-full max-w-xs md:max-w-sm bg-amber-50 z-50 border-l-4 border-amber-400 shadow-2xl drawer-transition transform translate-x-full flex flex-col justify-between">
+        <div class="p-4 flex-1 overflow-y-auto">
+            <div class="flex justify-between items-center pb-4 border-b border-amber-200">
+                <h3 class="text-xl font-cartoon text-amber-900 flex items-center gap-1.5">
+                    <span>🛒</span> GASSHOP UPGRADES
+                </h3>
+                <button onclick="toggleShop(false)" class="text-amber-900 font-bold bg-amber-200/80 hover:bg-amber-300 px-3 py-1 rounded-full text-sm">CLOSE</button>
+            </div>
+
+            <!-- Current Score / Wallet -->
+            <div class="bg-amber-100/80 p-3 rounded-xl mt-3 flex justify-between items-center border border-amber-200">
+                <span class="text-xs font-bold text-amber-800">YOUR GAS BUDGET:</span>
+                <span class="font-cartoon text-amber-950 text-base" id="shopWallet">0 pts</span>
+            </div>
+
+            <!-- Shop Items List -->
+            <div class="mt-4 space-y-3">
+                
+                <!-- Upgrade 1: Spicy Multiplier -->
+                <div class="bg-white p-3 rounded-xl border border-amber-200 flex flex-col justify-between relative overflow-hidden group">
+                    <div class="flex justify-between items-start">
+                        <div class="text-xl">🌶️</div>
+                        <span id="upgSpicyLabel" class="text-[9px] bg-amber-100 text-amber-800 font-bold px-1.5 py-0.5 rounded">Lvl 0</span>
+                    </div>
+                    <div class="mt-1">
+                        <h4 class="text-xs font-cartoon text-amber-900">Sriracha Gas-Drizzle</h4>
+                        <p class="text-[10px] text-gray-500">Adds +50% gas power output to spicy foods.</p>
+                    </div>
+                    <button id="upgSpicyBtn" onclick="buyUpgrade('spicy')" class="mt-2.5 w-full bg-amber-400 hover:bg-amber-500 text-amber-950 font-cartoon text-xs py-1.5 rounded-lg flex justify-between px-3">
+                        <span>BUY UPGRADE</span>
+                        <span id="upgSpicyCost">250 pts</span>
+                    </button>
+                </div>
+
+                <!-- Upgrade 2: Drink Carbonator -->
+                <div class="bg-white p-3 rounded-xl border border-amber-200 flex flex-col justify-between relative overflow-hidden">
+                    <div class="flex justify-between items-start">
+                        <div class="text-xl">🥤</div>
+                        <span id="upgSodaLabel" class="text-[9px] bg-amber-100 text-amber-800 font-bold px-1.5 py-0.5 rounded">Lvl 0</span>
+                    </div>
+                    <div class="mt-1">
+                        <h4 class="text-xs font-cartoon text-amber-900">Carbonator 3000</h4>
+                        <p class="text-[10px] text-gray-500">Fizzy sodas and milks yield double (2x) the bubble!</p>
+                    </div>
+                    <button id="upgSodaBtn" onclick="buyUpgrade('soda')" class="mt-2.5 w-full bg-amber-400 hover:bg-amber-500 text-amber-950 font-cartoon text-xs py-1.5 rounded-lg flex justify-between px-3">
+                        <span>BUY UPGRADE</span>
+                        <span id="upgSodaCost">400 pts</span>
+                    </button>
+                </div>
+
+                <!-- Upgrade 3: Golden Bean Spawn -->
+                <div class="bg-white p-3 rounded-xl border border-amber-200 flex flex-col justify-between relative overflow-hidden">
+                    <div class="flex justify-between items-start">
+                        <div class="text-xl">🫘</div>
+                        <span id="upgGoldenBeanLabel" class="text-[9px] bg-red-100 text-red-700 font-bold px-1.5 py-0.5 rounded">LOCKED</span>
+                    </div>
+                    <div class="mt-1">
+                        <h4 class="text-xs font-cartoon text-amber-900">Golden Space Bean</h4>
+                        <p class="text-[10px] text-gray-500">Unlocks a rare golden bean that provides +60 Gas!</p>
+                    </div>
+                    <button id="upgGoldenBeanBtn" onclick="buyUpgrade('golden_bean')" class="mt-2.5 w-full bg-amber-400 hover:bg-amber-500 text-amber-950 font-cartoon text-xs py-1.5 rounded-lg flex justify-between px-3">
+                        <span>UNLOCK BEAN</span>
+                        <span id="upgGoldenBeanCost">750 pts</span>
+                    </button>
+                </div>
+
+            </div>
+        </div>
+        <div class="p-4 bg-amber-100 border-t border-amber-200 text-[10px] text-amber-800 text-center">
+            Points spent are deducted from your score. Upgrades are permanent!
+        </div>
+    </div>
+
+    <!-- SKINS SELECTION DRAWER -->
+    <div id="skinsDrawer" class="fixed top-0 bottom-0 right-0 w-full max-w-xs md:max-w-sm bg-blue-50 z-50 border-l-4 border-blue-400 shadow-2xl drawer-transition transform translate-x-full flex flex-col justify-between">
+        <div class="p-4 flex-1 overflow-y-auto">
+            <div class="flex justify-between items-center pb-4 border-b border-blue-200">
+                <h3 class="text-xl font-cartoon text-blue-900 flex items-center gap-1.5">
+                    <span>👕</span> CHARACTER SKINS
+                </h3>
+                <button onclick="toggleSkins(false)" class="text-blue-900 font-bold bg-blue-200/80 hover:bg-blue-300 px-3 py-1 rounded-full text-sm">CLOSE</button>
+            </div>
+
+            <!-- Skin List -->
+            <div class="mt-4 space-y-3">
+                
+                <!-- Skin 1: Classic Gus -->
+                <button onclick="selectSkin('classic')" class="w-full bg-white p-3 rounded-xl border-2 border-blue-400 flex items-center gap-3 text-left transition transform hover:scale-102">
+                    <span class="text-3xl">👦</span>
+                    <div>
+                        <h4 class="text-xs font-cartoon text-blue-950">Classic Gus</h4>
+                        <p class="text-[10px] text-gray-500">The classic rumbly stomach champion.</p>
+                        <span class="text-[9px] text-blue-600 font-bold">UNLOCKED (SELECTED)</span>
+                    </div>
+                </button>
+
+                <!-- Skin 2: Toxic Toby -->
+                <button id="skinToxicBtn" onclick="selectSkin('toxic')" class="w-full bg-white p-3 rounded-xl border-2 border-gray-200 flex items-center gap-3 text-left transition transform hover:scale-102">
+                    <span class="text-3xl">☣️</span>
+                    <div>
+                        <h4 class="text-xs font-cartoon text-blue-950">Toxic Toby</h4>
+                        <p class="text-[10px] text-gray-500">Starts out green. Highly volatile hazard-vest boy.</p>
+                        <span id="skinToxicStatus" class="text-[9px] text-amber-600 font-bold">COST: 500 points</span>
+                    </div>
+                </button>
+
+                <!-- Skin 3: Grandpa Gurgle -->
+                <button id="skinGrandpaBtn" onclick="selectSkin('grandpa')" class="w-full bg-white p-3 rounded-xl border-2 border-gray-200 flex items-center gap-3 text-left transition transform hover:scale-102">
+                    <span class="text-3xl">👴</span>
+                    <div>
+                        <h4 class="text-xs font-cartoon text-blue-950">Grandpa Gurgle</h4>
+                        <p class="text-[10px] text-gray-500">He holds his nose while unleashing extreme vintage rumbles.</p>
+                        <span id="skinGrandpaStatus" class="text-[9px] text-amber-600 font-bold">COST: 1000 points</span>
+                    </div>
+                </button>
+
+            </div>
+        </div>
+        <div class="p-4 bg-blue-100 border-t border-blue-200 text-[10px] text-blue-800 text-center">
+            Unlocking skins is permanent and uses your current points balance!
+        </div>
+    </div>
+
+    <!-- GLOBAL LEADERBOARD DRAWER -->
+    <div id="leaderboardDrawer" class="fixed top-0 bottom-0 right-0 w-full max-w-xs md:max-w-sm bg-emerald-50 z-50 border-l-4 border-emerald-400 shadow-2xl drawer-transition transform translate-x-full flex flex-col justify-between">
+        <div class="p-4 flex-1 overflow-y-auto">
+            <div class="flex justify-between items-center pb-4 border-b border-emerald-200">
+                <h3 class="text-xl font-cartoon text-emerald-900 flex items-center gap-1.5">
+                    <span>🏆</span> GLOBAL LEADERS
+                </h3>
+                <button onclick="toggleLeaderboard(false)" class="text-emerald-900 font-bold bg-emerald-200/80 hover:bg-emerald-300 px-3 py-1 rounded-full text-sm">CLOSE</button>
+            </div>
+
+            <!-- Nickname Setup -->
+            <div class="mt-4 p-3 bg-white rounded-xl border border-emerald-200 shadow-sm">
+                <label class="block text-[11px] font-bold text-emerald-800 mb-1">YOUR FART CHAMPION NICKNAME:</label>
+                <div class="flex gap-2">
+                    <input type="text" id="playerNameInput" placeholder="Enter name..." class="flex-1 px-3 py-1.5 text-xs border-2 border-emerald-200 rounded-lg focus:outline-none focus:border-emerald-500 font-cartoon" maxlength="15">
+                    <button onclick="savePlayerName()" class="bg-emerald-500 hover:bg-emerald-600 text-white font-cartoon text-xs px-3 rounded-lg border-b-2 border-emerald-700 transition transform active:scale-95">SAVE</button>
+                </div>
+            </div>
+
+            <!-- Scores List -->
+            <div id="leaderboardList" class="mt-4 space-y-2">
+                <div class="text-center text-xs text-gray-500 py-8 animate-pulse">Loading scoreboard...</div>
+            </div>
+        </div>
+        <div class="p-4 bg-emerald-100 border-t border-emerald-200 text-[10px] text-emerald-800 text-center">
+            Scores upload automatically! Add your credentials to begin.
+        </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div id="helpModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-opacity duration-300 hidden">
+        <div class="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl border-4 border-yellow-400 transform scale-95 transition-transform duration-300">
+            <h2 class="text-2xl font-cartoon text-center text-orange-600 mb-4">How To Play! 💨</h2>
+            <div class="space-y-3 text-gray-700 text-xs md:text-sm">
+                <p>🙋‍♂️ <strong>Feed the Boy:</strong> Feed him items that match his craving speech bubble for a <strong>2x Gas Multiplier!</strong></p>
+                <p>💥 <strong>Interactive Blast:</strong> Tapping "Release" starts a quick swinging power-meter. Hit the red <strong>MEGA ZONE</strong> for massive scoring bonuses!</p>
+                <p>🛒 <strong>Unlock Upgrades & Skins:</strong> Gather points to buy cool modifiers or funny characters like Toxic Toby and Grandpa Gurgle!</p>
+                <p>☣️ <strong>Stink level:</strong> Keep unleashing farts to fog up the room! High stink multipliers increase overall point gains.</p>
+            </div>
+            <button onclick="showHelpModal(false)" class="mt-6 w-full bg-yellow-400 hover:bg-yellow-500 text-amber-900 font-cartoon py-3 rounded-2xl border-b-4 border-yellow-600 transition transform active:scale-95 text-sm">
+                LET'S BLAST!
+            </button>
+        </div>
+    </div>
+
+    <!-- Fart Celebration / Score Card Modal -->
+    <div id="fartScoreModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-opacity duration-300 hidden">
+        <div id="fartModalContent" class="bg-gradient-to-b from-green-50 to-emerald-100 rounded-3xl p-8 max-w-md w-full shadow-2xl border-4 border-green-500 text-center transform scale-95 transition-transform duration-300 relative overflow-hidden">
+            
+            <div class="absolute -top-10 -left-10 w-24 h-24 bg-green-300 rounded-full opacity-20 blur-xl"></div>
+            <div class="absolute -bottom-10 -right-10 w-32 h-32 bg-green-400 rounded-full opacity-20 blur-xl"></div>
+
+            <h2 id="fartTypeTitle" class="text-3xl md:text-4xl font-cartoon text-emerald-800 mb-2 animate-bounce">THE RIP-SNORTER!</h2>
+            <p id="fartSubtitle" class="text-gray-600 font-bold mb-4 text-xs">A marvelous performance!</p>
+
+            <!-- Timing Multiplier Status -->
+            <div id="fartTimingBadge" class="inline-block bg-orange-500 text-white font-cartoon text-xs px-3 py-1 rounded-full mb-4 border border-white uppercase shadow-md animate-pulse">
+                MEGA BLAST! (+50% Score)
+            </div>
+
+            <!-- Big Stats Display -->
+            <div class="bg-white/80 rounded-2xl p-4 shadow-md inline-block mb-4 border-2 border-emerald-300 w-full">
+                <div class="text-xs text-emerald-600 font-cartoon tracking-wider uppercase">Fart Output</div>
+                <div id="fartLitres" class="text-4xl md:text-5xl font-cartoon text-emerald-700 my-1">87.5 L</div>
+                <div class="text-xs text-gray-500 font-bold">Of gaseous methane power!</div>
+            </div>
+
+            <!-- Fart Details -->
+            <div class="grid grid-cols-2 gap-3 mb-4">
+                <div class="bg-white/60 rounded-xl p-3 shadow-sm">
+                    <div class="text-[10px] text-gray-500 font-bold">Points Awarded</div>
+                    <div id="fartPointsText" class="text-xl md:text-2xl font-cartoon text-orange-600">+1,420</div>
+                </div>
+                <div class="bg-white/60 rounded-xl p-3 shadow-sm">
+                    <div class="text-[10px] text-gray-500 font-bold">Rumble Level</div>
+                    <div id="fartRumbleText" class="text-xl md:text-2xl font-cartoon text-blue-600">SEISMIC</div>
+                </div>
+            </div>
+
+            <p id="fartQuote" class="text-xs italic text-gray-600 mb-5 bg-white/40 p-3 rounded-lg border border-dashed border-green-200">"The wallpaper is peeling..."</p>
+
+            <button onclick="closeFartModal()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-cartoon text-base py-3.5 rounded-2xl shadow-xl border-b-6 border-emerald-900 transition transform active:scale-95">
+                FEED MORE GRUB! 🍲
+            </button>
+        </div>
+    </div>
+
+    <!-- Script Space -->
+    <script>
+        const SUPABASE_URL = "https://gsrowizzkxfpdxilkqnz.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdzcm93aXp6a3hmcGR4aWxrcW56Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA1MzE0OTksImV4cCI6MjA5NjEwNzQ5OX0.XUITx_Cr0_CZ0Vg5442Wyv_TxE_xIQuRgDrCFweesf8";
+        let supabaseClient = null;
+
+        try {
+            if (SUPABASE_URL !== "YOUR_SUPABASE_URL" && SUPABASE_ANON_KEY !== "YOUR_SUPABASE_ANON_KEY") {
+                supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            }
+        } catch (e) {
+            console.warn("Supabase configuration keys missing or invalid:", e);
+        }
+
+        // --- GAME DATABASE & STATE ---
+        const FOODS = [
+            { id: 'beans', name: 'Baked Beans', gas: 28, category: 'beans', icon: '🍲', color: '#c2593f', soundFreq: 120 },
+            { id: 'broccoli', name: 'Broccoli', gas: 20, category: 'veg', icon: '🥦', color: '#388e3c', soundFreq: 180 },
+            { id: 'cabbage', name: 'Cabbage', gas: 24, category: 'veg', icon: '🥬', color: '#4caf50', soundFreq: 190 },
+            { id: 'soda', name: 'Fizzy Soda', gas: 26, category: 'drink', icon: '🥤', color: '#e91e63', soundFreq: 350 },
+            { id: 'egg', name: 'Boiled Egg', gas: 18, category: 'protein', icon: '🥚', color: '#ffca28', soundFreq: 140 },
+            { id: 'onion', name: 'Raw Onion', gas: 22, category: 'veg', icon: '🧅', color: '#ba68c8', soundFreq: 210 },
+            { id: 'chili', name: 'Hot Chili', gas: 16, category: 'spicy', icon: '🌶️', color: '#f44336', soundFreq: 280 },
+            { id: 'milk', name: 'Fresh Milk', gas: 12, category: 'drink', icon: '🥛', color: '#90caf9', soundFreq: 300 },
+            { id: 'rice', name: 'White Rice', gas: -12, category: 'carb', icon: '🍚', color: '#eceff1', soundFreq: 160 },
+            { id: 'chicken', name: 'Dry Chicken', gas: -8, category: 'protein', icon: '🍗', color: '#d7ccc8', soundFreq: 110 },
+            { id: 'water', name: 'Ice Water', gas: -15, category: 'drink', icon: '💧', color: '#03a9f4', soundFreq: 400 },
+            { id: 'apple', name: 'Juicy Apple', gas: 5, category: 'fruit', icon: '🍎', color: '#e53935', soundFreq: 250 }
+        ];
+
+        // Rare Item unlocked via shop
+        const GOLDEN_BEAN = { id: 'golden_bean', name: 'Golden Space Bean', gas: 60, category: 'beans', icon: '🫘✨', color: '#ffd700', soundFreq: 100 };
+
+        const DEMANDS = [
+            { id: 'beans', label: 'beans', text: 'I NEED BEANS! Give me that rich rumbly recipe!' },
+            { id: 'veg', label: 'veg', text: 'My stomach demands leafy green VEGGIES!' },
+            { id: 'drink', label: 'drink', text: 'Thirsty! I want something FIZZY or liquid!' },
+            { id: 'spicy', label: 'spicy', text: 'Give me some spice to ignite the gas rocket!' },
+            { id: 'any', label: 'any', text: 'I\'ll eat anything! Fill me up with gas!' }
+        ];
+
+        const FART_TYPES = [
+            { minGas: 0, title: "The Squeaker 🐹", rumble: "Squeak", pointsBase: 5, bg: "from-yellow-100 to-green-100", quotes: ["Barely made a sound, but the cat left the room.", "Was that a squeaky floorboard or a dynamic release?"] },
+            { minGas: 20, title: "The Cheek Squealer 🐖", rumble: "Cheeky", pointsBase: 15, bg: "from-green-100 to-yellow-200", quotes: ["A medium blast! Smells like chemical success.", "Highly musical! A solid classic performance."] },
+            { minGas: 45, title: "The Rip-Snorter! 🌪️", rumble: "Seismic", pointsBase: 50, bg: "from-green-200 to-emerald-200", quotes: ["Gus just shook the foundation of the house!", "That definitely woke up the neighbors!"] },
+            { minGas: 75, title: "Butt Thunder! ⚡", rumble: "Volcanic", pointsBase: 120, bg: "from-emerald-300 to-green-400", quotes: ["A glorious sound. The drywall is cracking!", "That actually registered on the Richter scale!"] },
+            { minGas: 99, title: "THERMONUCLEAR BLOWOUT! ☢️", rumble: "Apocalyptic", pointsBase: 300, bg: "from-green-400 via-emerald-500 to-red-400", quotes: ["Absolute legendary blast. The wallpaper has melted!", "A masterpiece of physics. Summon the hazmat teams!"] }
+        ];
+
+        let state = {
+            score: 0,
+            bestFart: 0,
+            gasLevel: 0, // 0 to 100
+            currentDemand: DEMANDS[0],
+            isMuted: false,
+            fartCount: 0,
+            activeTrayFoods: [],
+            currentSkin: 'classic',
+            unlockedSkins: ['classic'],
+            roomToxicity: 0, // 0 to 100% (adds green screen mist)
+            upgrades: {
+                spicy: 0, // adds +50% gas power to spicy
+                soda: 0,  // adds +100% gas power to drink
+                golden_bean: 0 // unlocks golden bean food item
+            },
+            prices: {
+                spicy: 250,
+                soda: 400,
+                golden_bean: 750,
+                skin_toxic: 500,
+                skin_grandpa: 1000
+            },
+            // Mini-game (QTE) State Tracker
+            qteActive: false,
+            qteDirection: 1, // 1 = right, -1 = left
+            qtePosition: 0, // 0 to 100%
+            qteSpeed: 2.2, // Oscillation speed
+            qteLoopId: null
+        };
+
+        // --- WEB AUDIO API PROCEDURAL SYNTHESIZER ---
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playSynthSound(type, freq, duration) {
+            if (state.isMuted) return;
+            initAudio();
+            
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            if (type === 'eat') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(30, audioCtx.currentTime + duration);
+                
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+                
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } else if (type === 'gurgle') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                
+                const lfo = audioCtx.createOscillator();
+                const lfoGain = audioCtx.createGain();
+                lfo.frequency.setValueAtTime(15, audioCtx.currentTime);
+                lfoGain.gain.setValueAtTime(60, audioCtx.currentTime);
+                
+                lfo.connect(lfoGain);
+                lfoGain.connect(osc.frequency);
+                
+                gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+                
+                lfo.start();
+                osc.start();
+                lfo.stop(audioCtx.currentTime + duration);
+                osc.stop(audioCtx.currentTime + duration);
+            } else if (type === 'alarm') {
+                // Short warning beep
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            }
+        }
+
+        // Procedural Fart Synthesizer with Timing Multipliers
+        function playProceduralFart(power, timingMultiplier) {
+            if (state.isMuted) return;
+            initAudio();
+
+            // Longer farts if power is high or timing is amazing
+            const duration = (0.5 + (power / 100) * 1.5) * timingMultiplier; 
+            const baseFreq = (80 - (power / 100) * 45) / (timingMultiplier * 0.9);
+            
+            const osc = audioCtx.createOscillator();
+            const filter = audioCtx.createBiquadFilter();
+            const gain = audioCtx.createGain();
+            
+            const lfo = audioCtx.createOscillator();
+            const lfoGain = audioCtx.createGain();
+            
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(baseFreq, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(12, audioCtx.currentTime + duration);
+            
+            // Flapping cheek resonance oscillation
+            lfo.type = 'square';
+            lfo.frequency.setValueAtTime(22 - (power / 100) * 8, audioCtx.currentTime);
+            lfoGain.gain.setValueAtTime(35 + (power / 100) * 50, audioCtx.currentTime);
+            
+            lfo.connect(lfoGain);
+            lfoGain.connect(osc.frequency);
+            
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(280 + (power / 100) * 450, audioCtx.currentTime);
+            filter.frequency.exponentialRampToValueAtTime(35, audioCtx.currentTime + duration);
+            
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            gain.gain.setValueAtTime(0.01, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.7 + (power / 100) * 0.3, audioCtx.currentTime + 0.05);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+            
+            lfo.start();
+            osc.start();
+            
+            lfo.stop(audioCtx.currentTime + duration);
+            osc.stop(audioCtx.currentTime + duration);
+
+            // Secondary layers
+            if (power > 40) {
+                setTimeout(() => {
+                    if (state.isMuted) return;
+                    const squeak = audioCtx.createOscillator();
+                    const sGain = audioCtx.createGain();
+                    squeak.type = 'sine';
+                    squeak.frequency.setValueAtTime(250 + Math.random() * 200, audioCtx.currentTime);
+                    squeak.frequency.exponentialRampToValueAtTime(80, audioCtx.currentTime + 0.3);
+                    sGain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                    sGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+                    
+                    squeak.connect(sGain);
+                    sGain.connect(audioCtx.destination);
+                    squeak.start();
+                    squeak.stop(audioCtx.currentTime + 0.3);
+                }, (duration * 0.3) * 1000);
+            }
+        }
+
+        // --- PARTICLE PHYSICS ENGINE ---
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class GasParticle {
+            constructor(x, y, power, colorStr) {
+                this.x = x;
+                this.y = y;
+                this.vx = -1.5 - Math.random() * (power / 8);
+                this.vy = (Math.random() - 0.5) * (power / 10);
+                this.alpha = 0.85 + Math.random() * 0.15;
+                this.size = 12 + Math.random() * (power / 2.5);
+                this.color = colorStr || '100, 180, 80';
+                this.decay = 0.006 + Math.random() * 0.012;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vy -= 0.06; // Gas floats up
+                this.alpha -= this.decay;
+                this.size += 0.4;
+            }
+
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.alpha;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(${this.color}, ${this.alpha})`;
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        function createFartCloud(power, colorTheme) {
+            const gusRect = document.getElementById('charContainer').getBoundingClientRect();
+            const canvasRect = canvas.getBoundingClientRect();
+            
+            const originX = (gusRect.left - canvasRect.left) + gusRect.width * 0.35;
+            const originY = (gusRect.top - canvasRect.top) + gusRect.height * 0.75;
+
+            const count = Math.floor(25 + power * 2.2);
+            
+            // Choose stinky cloud color based on chosen skin or power
+            let particleColor = colorTheme || '110, 190, 70'; // classic green
+            if (state.currentSkin === 'toxic') {
+                particleColor = '180, 210, 20'; // neon green/yellow
+            } else if (state.currentSkin === 'grandpa') {
+                particleColor = '130, 120, 100'; // dusty stinky brown
+            } else {
+                if (power > 60) particleColor = '85, 145, 55';
+                if (power > 85) particleColor = '115, 95, 35';
+            }
+
+            for (let i = 0; i < count; i++) {
+                setTimeout(() => {
+                    particles.push(new GasParticle(originX, originY, power, particleColor));
+                }, i * 15);
+            }
+
+            // Screen rumble shakes the viewport
+            const mainContainer = document.getElementById('charContainer');
+            mainContainer.classList.add('rumbling');
+            let rumbleStrength = 6 + (power / 8);
+            document.body.style.transform = `translate(${(Math.random() - 0.5) * rumbleStrength}px, ${(Math.random() - 0.5) * rumbleStrength}px)`;
+            
+            let shakeDuration = 500 + (power / 100) * 1200;
+            let shakeInterval = setInterval(() => {
+                document.body.style.transform = `translate(${(Math.random() - 0.5) * rumbleStrength}px, ${(Math.random() - 0.5) * rumbleStrength}px)`;
+            }, 30);
+
+            setTimeout(() => {
+                clearInterval(shakeInterval);
+                document.body.style.transform = '';
+                mainContainer.classList.remove('rumbling');
+            }, shakeDuration);
+        }
+
+        function spawnStomachGurgleBubble() {
+            if (state.gasLevel <= 0) return;
+            const gusRect = document.getElementById('charContainer').getBoundingClientRect();
+            const canvasRect = canvas.getBoundingClientRect();
+            
+            const originX = (gusRect.left - canvasRect.left) + gusRect.width * 0.5 + (Math.random() - 0.5) * 50;
+            const originY = (gusRect.top - canvasRect.top) + gusRect.height * 0.65 + (Math.random() - 0.5) * 50;
+
+            const b = {
+                x: originX,
+                y: originY,
+                vx: (Math.random() - 0.5) * 1,
+                vy: -1.2 - Math.random() * 1.8,
+                alpha: 0.75,
+                size: 5 + Math.random() * 7,
+                decay: 0.009
+            };
+
+            const animateBubble = () => {
+                b.x += b.vx;
+                b.y += b.vy;
+                b.alpha -= b.decay;
+                if (b.alpha > 0) {
+                    ctx.save();
+                    ctx.globalAlpha = b.alpha;
+                    ctx.beginPath();
+                    ctx.arc(b.x, b.y, b.size, 0, Math.PI * 2);
+                    
+                    // Bubble color matches selected skin
+                    if (state.currentSkin === 'toxic') {
+                        ctx.fillStyle = 'rgba(192, 202, 51, 0.4)';
+                        ctx.strokeStyle = 'rgba(130, 140, 20, 0.7)';
+                    } else {
+                        ctx.fillStyle = 'rgba(139, 195, 74, 0.4)';
+                        ctx.strokeStyle = 'rgba(76, 175, 80, 0.7)';
+                    }
+                    ctx.lineWidth = 1.5;
+                    ctx.fill();
+                    ctx.stroke();
+                    ctx.restore();
+                    requestAnimationFrame(animateBubble);
+                }
+            };
+            requestAnimationFrame(animateBubble);
+        }
+
+        // Main particle execution loop
+        function particleLoop() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles = particles.filter(p => p.alpha > 0);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(particleLoop);
+        }
+        requestAnimationFrame(particleLoop);
+
+        // --- GAMEPLAY CONFIGURATIONS & STATE CONTROLS ---
+
+        function randomizeFoods() {
+            let pool = [...FOODS];
+            // If golden bean upgrade unlocked, occasionally add it to pool
+            if (state.upgrades.golden_bean > 0) {
+                pool.push(GOLDEN_BEAN);
+            }
+            
+            pool.sort(() => Math.random() - 0.5);
+            state.activeTrayFoods = pool.slice(0, 4);
+            renderFoodTray();
+        }
+
+        function renderFoodTray() {
+            const tray = document.getElementById('foodTray');
+            tray.innerHTML = '';
+            
+            state.activeTrayFoods.forEach((food) => {
+                let gasIntensityText = "💨";
+                if (food.gas > 40) gasIntensityText = "🌟💨💨💨";
+                else if (food.gas > 25) gasIntensityText = "💨💨💨";
+                else if (food.gas > 15) gasIntensityText = "💨💨";
+                else if (food.gas < 0) gasIntensityText = "🥬 (REDUCE)";
+
+                const card = document.createElement('button');
+                card.className = "bg-white hover:bg-amber-50 active:scale-95 transition transform border-2 border-orange-200 hover:border-orange-400 p-2 rounded-2xl shadow flex flex-col items-center justify-between w-full h-22 md:h-24 relative group";
+                card.onclick = () => feedGus(food, card);
+
+                card.innerHTML = `
+                    <div class="text-2xl md:text-3xl transform group-hover:scale-110 transition-transform">${food.icon}</div>
+                    <div class="text-[9px] md:text-[10px] font-bold text-gray-700 leading-tight text-center mt-1">${food.name}</div>
+                    <div class="text-[8px] font-cartoon text-green-600 mt-0.5">${gasIntensityText}</div>
+                `;
+                
+                tray.appendChild(card);
+            });
+        }
+
+        function setRandomDemand() {
+            const filteredDemands = DEMANDS.filter(d => d.id !== state.currentDemand.id);
+            state.currentDemand = filteredDemands[Math.floor(Math.random() * filteredDemands.length)];
+            
+            document.getElementById('demandText').innerText = state.currentDemand.text;
+            
+            const bubble = document.getElementById('demandBubble');
+            bubble.className = "bg-white text-gray-800 border-4 px-6 py-2.5 rounded-2xl shadow-lg relative max-w-xs text-center font-cartoon floating-bubble mb-3 z-20 ";
+            
+            if (state.currentDemand.id === 'beans') bubble.classList.add('border-amber-600');
+            else if (state.currentDemand.id === 'veg') bubble.classList.add('border-green-500');
+            else if (state.currentDemand.id === 'drink') bubble.classList.add('border-blue-400');
+            else if (state.currentDemand.id === 'spicy') bubble.classList.add('border-red-500');
+            else bubble.classList.add('border-yellow-400');
+        }
+
+        function updateGusFace(expression) {
+            const normalEyes = document.getElementById('eyesNormal');
+            const gassyEyes = document.getElementById('eyesGassy');
+            const happyEyes = document.getElementById('eyesHappy');
+            const mouthOpen = document.getElementById('mouthOpen');
+            const mouthMunch = document.getElementById('mouthMunch');
+            const mouthHold = document.getElementById('mouthHold');
+            const leftCheek = document.getElementById('leftCheek');
+            const rightCheek = document.getElementById('rightCheek');
+
+            [normalEyes, gassyEyes, happyEyes, mouthOpen, mouthMunch, mouthHold].forEach(el => el.classList.add('hidden'));
+
+            if (expression === 'normal') {
+                normalEyes.classList.remove('hidden');
+                mouthOpen.classList.remove('hidden');
+                leftCheek.style.opacity = "0.3";
+                rightCheek.style.opacity = "0.3";
+            } else if (expression === 'chewing') {
+                happyEyes.classList.remove('hidden');
+                mouthMunch.classList.remove('hidden');
+                leftCheek.style.opacity = "0.7";
+                rightCheek.style.opacity = "0.7";
+            } else if (expression === 'gassy') {
+                gassyEyes.classList.remove('hidden');
+                mouthHold.classList.remove('hidden');
+                leftCheek.style.opacity = "0.9";
+                rightCheek.style.opacity = "0.9";
+            }
+        }
+
+        // Skin swapping triggers SVG element changes
+        function selectSkin(skinId) {
+            if (skinId !== 'classic' && !state.unlockedSkins.includes(skinId)) {
+                // Skin is locked, attempt to unlock with points
+                const cost = skinId === 'toxic' ? state.prices.skin_toxic : state.prices.skin_grandpa;
+                if (state.score >= cost) {
+                    state.score -= cost;
+                    state.unlockedSkins.push(skinId);
+                    document.getElementById('scoreText').innerText = state.score;
+                    updateDashboardAndShop();
+                } else {
+                    alert("Not enough points to unlock this skin! Go fart some more!");
+                    return;
+                }
+            }
+
+            state.currentSkin = skinId;
+
+            // Update SVGs
+            const classicHair = document.getElementById('hairClassic');
+            const toxicHair = document.getElementById('hairToxic');
+            const grandpaHair = document.getElementById('hairGrandpa');
+            const grandpaSpecs = document.getElementById('grandpaSpecs');
+            const bellyPants = document.getElementById('bellyPants');
+            const bellyBg = document.getElementById('bellyBg');
+            const stripe1 = document.getElementById('shirtStripe1');
+            const stripe2 = document.getElementById('shirtStripe2');
+            const toxicShirtAccents = document.getElementById('toxicShirtAccents');
+            const grandpaAccents = document.getElementById('grandpaAccents');
+            const headSkin = document.getElementById('headSkin');
+            const earLeft = document.getElementById('earLeft');
+            const earRight = document.getElementById('earRight');
+            const armLeftSkin = document.getElementById('armLeftSkin');
+            const armRightSkin = document.getElementById('armRightSkin');
+            const armLeft = document.getElementById('armLeft');
+            const armRight = document.getElementById('armRight');
+
+            // Hide all accents
+            [classicHair, toxicHair, grandpaHair, grandpaSpecs, stripe1, stripe2, toxicShirtAccents, grandpaAccents].forEach(el => el.classList.add('hidden'));
+
+            // Reset default colors
+            headSkin.setAttribute('fill', '#fbc3a6');
+            earLeft.setAttribute('fill', '#fbc3a6');
+            earRight.setAttribute('fill', '#fbc3a6');
+            armLeftSkin.setAttribute('fill', '#fbc3a6');
+            armRightSkin.setAttribute('fill', '#fbc3a6');
+
+            if (skinId === 'classic') {
+                classicHair.classList.remove('hidden');
+                stripe1.classList.remove('hidden');
+                stripe2.classList.remove('hidden');
+                bellyPants.setAttribute('fill', '#2d68c4');
+                bellyBg.setAttribute('fill', '#ff9933');
+                armLeft.setAttribute('stroke', '#ff9933');
+                armRight.setAttribute('stroke', '#ff9933');
+            } else if (skinId === 'toxic') {
+                toxicHair.classList.remove('hidden');
+                toxicShirtAccents.classList.remove('hidden');
+                bellyPants.setAttribute('fill', '#ff5722');
+                bellyBg.setAttribute('fill', '#827717');
+                armLeft.setAttribute('stroke', '#827717');
+                armRight.setAttribute('stroke', '#827717');
+                // Green face
+                headSkin.setAttribute('fill', '#d4e157');
+                earLeft.setAttribute('fill', '#d4e157');
+                earRight.setAttribute('fill', '#d4e157');
+                armLeftSkin.setAttribute('fill', '#d4e157');
+                armRightSkin.setAttribute('fill', '#d4e157');
+            } else if (skinId === 'grandpa') {
+                grandpaHair.classList.remove('hidden');
+                grandpaSpecs.classList.remove('hidden');
+                grandpaAccents.classList.remove('hidden');
+                bellyPants.setAttribute('fill', '#5d4037');
+                bellyBg.setAttribute('fill', '#cfd8dc');
+                armLeft.setAttribute('stroke', '#cfd8dc');
+                armRight.setAttribute('stroke', '#cfd8dc');
+            }
+
+            updateBellyScale();
+            toggleSkins(false);
+        }
+
+        // Expand belly visually
+        function updateBellyScale() {
+            const stomach = document.getElementById('stomachGroup');
+            const gasPercentage = state.gasLevel / 100;
+            
+            const scaleX = 1 + (gasPercentage * 0.45);
+            const scaleY = 1 + (gasPercentage * 0.3);
+            const translateY = gasPercentage * 5;
+            
+            stomach.setAttribute('transform', `scale(${scaleX}, ${scaleY}) translate(0, ${translateY})`);
+            
+            const leftCheek = document.getElementById('leftCheek');
+            const rightCheek = document.getElementById('rightCheek');
+            const blushOpacity = 0.3 + (gasPercentage * 0.6);
+            leftCheek.style.opacity = blushOpacity;
+            rightCheek.style.opacity = blushOpacity;
+
+            // Make skin face tint green/red when expanding
+            const headSkin = document.getElementById('headSkin');
+            if (state.currentSkin === 'classic' || state.currentSkin === 'grandpa') {
+                if (gasPercentage > 0.8) {
+                    headSkin.setAttribute('fill', '#a5d6a7'); // Starts turning slightly green from holding in gas!
+                } else if (gasPercentage > 0.5) {
+                    headSkin.setAttribute('fill', '#ffcc80'); // turns orange/hot
+                } else {
+                    headSkin.setAttribute('fill', '#fbc3a6'); // normal skin
+                }
+            }
+
+            const gusSvg = document.getElementById('gusSvg');
+            const sweat = document.getElementById('sweatGroup');
+
+            if (state.gasLevel > 75) {
+                gusSvg.classList.add('rumbling');
+                sweat.classList.remove('hidden');
+                document.getElementById('statusPopup').classList.remove('hidden');
+                document.getElementById('statusPopup').innerText = "🔴 CRITICAL PRESSURE!";
+                
+                // Play warning ticks occasionally
+                if (Math.random() < 0.25) {
+                    playSynthSound('alarm', 580, 0.08);
+                }
+            } else if (state.gasLevel > 40) {
+                gusSvg.classList.add('rumbling');
+                sweat.classList.add('hidden');
+                document.getElementById('statusPopup').classList.remove('hidden');
+                document.getElementById('statusPopup').innerText = "⚠️ STOMACH INFLATED!";
+            } else {
+                gusSvg.classList.remove('rumbling');
+                sweat.classList.add('hidden');
+                document.getElementById('statusPopup').classList.add('hidden');
+            }
+        }
+
+        function updateGasProgress() {
+            const bar = document.getElementById('gasProgress');
+            const pctText = document.getElementById('gasPercentageText');
+            
+            bar.style.width = `${state.gasLevel}%`;
+            pctText.innerText = `${Math.round(state.gasLevel)}% FULL`;
+
+            if (state.gasLevel >= 95) {
+                bar.classList.add('animate-pulse');
+                document.getElementById('fartBtn').classList.add('animate-bounce', 'bg-red-500', 'border-red-700');
+            } else {
+                bar.classList.remove('animate-pulse');
+                document.getElementById('fartBtn').classList.remove('animate-bounce');
+            }
+        }
+
+        // Room Toxicity (Mist & Ambient fog)
+        function changeRoomToxicity(addedStink) {
+            state.roomToxicity = Math.max(0, Math.min(100, state.roomToxicity + addedStink));
+            
+            // Render UI Tracker
+            document.getElementById('toxicityBar').style.width = `${state.roomToxicity}%`;
+            document.getElementById('toxicityPercent').innerText = `${Math.round(state.roomToxicity)}%`;
+
+            // Adjust overall green/yellow tint visibility
+            const opacity = (state.roomToxicity / 100) * 0.45;
+            document.getElementById('toxicityFog').style.backgroundColor = `rgba(16, 185, 129, ${opacity})`;
+
+            // If room hits 100% toxicity, trigger special evacuation bonus!
+            if (state.roomToxicity >= 100) {
+                setTimeout(() => {
+                    playSynthSound('alarm', 880, 0.4);
+                    playSynthSound('alarm', 660, 0.4);
+                    
+                    // Award bonus score!
+                    state.score += 500;
+                    document.getElementById('scoreText').innerText = state.score;
+                    
+                    // Reset room toxicity slowly
+                    state.roomToxicity = 0;
+                    changeRoomToxicity(0);
+                    
+                    // Display message in dialogue box
+                    document.getElementById('demandText').innerHTML = `☣️ <span class="text-red-500 font-cartoon">HAZMAT EVACUATION!</span> Double air fresheners deployed! (+500 BONUS)`;
+                }, 1000);
+            }
+        }
+
+        // --- UPGRADES SHOP LOGIC ---
+        function updateDashboardAndShop() {
+            // Update current budget labels
+            document.getElementById('shopWallet').innerText = `${state.score} pts`;
+            
+            // Level labels
+            document.getElementById('upgSpicyLabel').innerText = `Lvl ${state.upgrades.spicy}`;
+            document.getElementById('upgSodaLabel').innerText = `Lvl ${state.upgrades.soda}`;
+            document.getElementById('upgGoldenBeanLabel').innerText = state.upgrades.golden_bean > 0 ? "UNLOCKED" : "LOCKED";
+
+            // Upgrades costs
+            document.getElementById('upgSpicyCost').innerText = `${state.prices.spicy} pts`;
+            document.getElementById('upgSodaCost').innerText = `${state.prices.soda} pts`;
+            document.getElementById('upgGoldenBeanCost').innerText = `${state.prices.golden_bean} pts`;
+
+            // Skin unlock buttons update
+            const toxicStatus = document.getElementById('skinToxicStatus');
+            if (state.unlockedSkins.includes('toxic')) {
+                toxicStatus.innerText = state.currentSkin === 'toxic' ? "SELECTED" : "UNLOCKED (TAP SELECT)";
+                toxicStatus.className = "text-[9px] text-green-600 font-bold";
+            } else {
+                toxicStatus.innerText = `COST: ${state.prices.skin_toxic} points`;
+            }
+
+            const grandpaStatus = document.getElementById('skinGrandpaStatus');
+            if (state.unlockedSkins.includes('grandpa')) {
+                grandpaStatus.innerText = state.currentSkin === 'grandpa' ? "SELECTED" : "UNLOCKED (TAP SELECT)";
+                grandpaStatus.className = "text-[9px] text-green-600 font-bold";
+            } else {
+                grandpaStatus.innerText = `COST: ${state.prices.skin_grandpa} points`;
+            }
+        }
+
+        function buyUpgrade(type) {
+            const cost = state.prices[type];
+            if (state.score >= cost) {
+                // Deduct points
+                state.score -= cost;
+                
+                // Add Upgrade Levels
+                if (type === 'spicy') {
+                    state.upgrades.spicy++;
+                    state.prices.spicy = Math.round(state.prices.spicy * 1.6);
+                } else if (type === 'soda') {
+                    state.upgrades.soda++;
+                    state.prices.soda = Math.round(state.prices.soda * 1.6);
+                } else if (type === 'golden_bean') {
+                    state.upgrades.golden_bean = 1;
+                    // Disable button
+                    document.getElementById('upgGoldenBeanBtn').disabled = true;
+                    document.getElementById('upgGoldenBeanBtn').classList.add('bg-gray-400', 'cursor-not-allowed');
+                }
+
+                // Update score tracker
+                document.getElementById('scoreText').innerText = state.score;
+                updateDashboardAndShop();
+                randomizeFoods(); // reload tray to include golden beans potentially
+                playSynthSound('alarm', 750, 0.15);
+            } else {
+                alert("You don't have enough points! Feed Gus matching items to save up points.");
+            }
+        }
+
+        // --- FEEDING TRIGGERS ---
+        function feedGus(food, cardElement) {
+            createFlyingFood(food, cardElement);
+            
+            const foodButtons = document.querySelectorAll('#foodTray button');
+            foodButtons.forEach(btn => btn.disabled = true);
+
+            updateGusFace('chewing');
+            playSynthSound('eat', food.soundFreq, 0.15);
+            setTimeout(() => playSynthSound('eat', food.soundFreq * 0.8, 0.12), 150);
+            setTimeout(() => playSynthSound('eat', food.soundFreq * 1.2, 0.10), 300);
+
+            setTimeout(() => {
+                let multiplier = 1;
+                let matched = false;
+
+                // Match verification
+                if (state.currentDemand.id === food.category || (state.currentDemand.id === 'any')) {
+                    multiplier = 2; // Double gas boost for matching craving!
+                    matched = true;
+                }
+
+                // Calculate additional points/gas from upgrades
+                let baseGas = food.gas;
+                if (food.category === 'spicy' && state.upgrades.spicy > 0) {
+                    baseGas += (food.gas * 0.5 * state.upgrades.spicy);
+                }
+                if (food.category === 'drink' && state.upgrades.soda > 0) {
+                    baseGas += (food.gas * 1.0 * state.upgrades.soda);
+                }
+
+                const finalGasInc = baseGas * multiplier;
+                state.gasLevel = Math.max(0, Math.min(100, state.gasLevel + finalGasInc));
+
+                if (finalGasInc > 0) {
+                    playSynthSound('gurgle', 100, 0.5);
+                    for (let i = 0; i < 4; i++) {
+                        setTimeout(spawnStomachGurgleBubble, i * 120);
+                    }
+                    
+                    if (matched) {
+                        document.getElementById('demandText').innerHTML = `❤️ <span class="text-green-600 font-cartoon">DOUBLE GAS!</span> I love ${food.category.toUpperCase()}!`;
+                    } else {
+                        document.getElementById('demandText').innerText = "Nom nom! That's brewing up nicely!";
+                    }
+                } else {
+                    document.getElementById('demandText').innerHTML = `🤢 <span class="text-red-500 font-cartoon">YUCK!</span> Healthy stuff kills my fizz!`;
+                    playSynthSound('gurgle', 350, 0.3);
+                }
+
+                updateBellyScale();
+                updateGasProgress();
+                randomizeFoods();
+
+                setTimeout(() => {
+                    if (state.gasLevel > 65) {
+                        updateGusFace('gassy');
+                    } else {
+                        updateGusFace('normal');
+                    }
+                    
+                    const foodButtonsReloaded = document.querySelectorAll('#foodTray button');
+                    foodButtonsReloaded.forEach(btn => btn.disabled = false);
+                }, 800);
+
+                if (matched || Math.random() < 0.35) {
+                    setTimeout(setRandomDemand, 1200);
+                }
+
+            }, 500);
+        }
+
+        function createFlyingFood(food, cardElement) {
+            const rect = cardElement.getBoundingClientRect();
+            const gusRect = document.getElementById('charContainer').getBoundingClientRect();
+            
+            const flyer = document.createElement('div');
+            flyer.className = "fixed text-3xl z-50 pointer-events-none transition-all duration-500 ease-out";
+            flyer.style.left = `${rect.left + rect.width / 2 - 15}px`;
+            flyer.style.top = `${rect.top}px`;
+            flyer.innerText = food.icon;
+            
+            document.body.appendChild(flyer);
+            
+            const targetX = gusRect.left + gusRect.width / 2 - 15;
+            const targetY = gusRect.top + gusRect.height * 0.45;
+
+            requestAnimationFrame(() => {
+                flyer.style.transform = `translate(${targetX - (rect.left + rect.width / 2 - 15)}px, ${targetY - rect.top}px) scale(1.5) rotate(180deg)`;
+                flyer.style.opacity = '0';
+            });
+
+            setTimeout(() => flyer.remove(), 550);
+        }
+
+        // --- MINI-GAME: QTE INTERACTIVE POWER-BAR ---
+        function initiateFartSequence() {
+            if (state.gasLevel <= 5) {
+                document.getElementById('demandText').innerText = "No gas! Feed me more rumbly beans first!";
+                return;
+            }
+
+            // Open timing mini game modal
+            document.getElementById('qteModal').classList.remove('hidden');
+            state.qteActive = true;
+            state.qtePosition = 0;
+            state.qteDirection = 1;
+            
+            // Dynamically adjust QTE difficulty based on gas level (higher gas = faster swing)
+            state.qteSpeed = 2.0 + (state.gasLevel / 100) * 3.5;
+
+            // Start oscillating Dial Loop
+            state.qteLoopId = requestAnimationFrame(qteOscillationLoop);
+        }
+
+        function qteOscillationLoop() {
+            if (!state.qteActive) return;
+
+            // Adjust position
+            state.qtePosition += state.qteSpeed * state.qteDirection;
+            if (state.qtePosition >= 100) {
+                state.qtePosition = 100;
+                state.qteDirection = -1;
+            } else if (state.qtePosition <= 0) {
+                state.qtePosition = 0;
+                state.qteDirection = 1;
+            }
+
+            // Update DOM element position
+            document.getElementById('qtePointer').style.left = `${state.qtePosition}%`;
+
+            state.qteLoopId = requestAnimationFrame(qteOscillationLoop);
+        }
+
+        // Execute Fart based on QTE slider timing
+        function commitFartBlast() {
+            state.qteActive = false;
+            cancelAnimationFrame(state.qteLoopId);
+            document.getElementById('qteModal').classList.add('hidden');
+
+            const releasedGas = state.gasLevel;
+            let timingMultiplier = 1.0;
+            let bonusLabel = "DECENT TIMING!";
+            let badgeColor = "bg-yellow-500";
+
+            // Determine QTE zone accuracy
+            if (state.qtePosition >= 75 && state.qtePosition <= 95) {
+                timingMultiplier = 1.6; // Massive bonus multiplier!
+                bonusLabel = "🌟 MEGA BLAST ZONE! (1.6x points!) 🌟";
+                badgeColor = "bg-red-500 animate-bounce";
+            } else if (state.qtePosition >= 40 && state.qtePosition < 75) {
+                timingMultiplier = 1.25;
+                bonusLabel = "✨ SOLID SWEET SPOT! (1.25x points!) ✨";
+                badgeColor = "bg-yellow-500 animate-pulse";
+            } else {
+                timingMultiplier = 0.8;
+                bonusLabel = "💩 PUFF! Sloppy timing. (0.8x multiplier)";
+                badgeColor = "bg-gray-500";
+            }
+
+            // Reset game state
+            state.gasLevel = 0;
+            updateBellyScale();
+            updateGasProgress();
+            updateGusFace('normal');
+
+            // Play physical synth sound and canvas particle cloud based on power and timing
+            playProceduralFart(releasedGas, timingMultiplier);
+            createFartCloud(releasedGas);
+
+            // Add room lingering toxicity
+            changeRoomToxicity(releasedGas * 0.45);
+
+            state.fartCount++;
+            
+            // Choose stinky category
+            let rating = FART_TYPES[0];
+            for (let i = FART_TYPES.length - 1; i >= 0; i--) {
+                if (releasedGas >= FART_TYPES[i].minGas) {
+                    rating = FART_TYPES[i];
+                    break;
+                }
+            }
+
+            // Calculate final score
+            const basePoints = releasedGas * rating.pointsBase;
+            const finalScoreAdded = Math.round(basePoints * timingMultiplier * (1 + state.fartCount * 0.05));
+            state.score += finalScoreAdded;
+            
+            if (releasedGas > state.bestFart) {
+                state.bestFart = Math.round(releasedGas);
+                document.getElementById('bestFartText').innerText = state.bestFart;
+            }
+
+            // Populate celebration modal
+            document.getElementById('fartTypeTitle').innerText = rating.title;
+            document.getElementById('fartLitres').innerText = `${releasedGas.toFixed(1)} L`;
+            document.getElementById('fartPointsText').innerText = `+${finalScoreAdded}`;
+            document.getElementById('fartRumbleText').innerText = rating.rumble.toUpperCase();
+            
+            // Timing badge customization
+            const badge = document.getElementById('fartTimingBadge');
+            badge.innerText = bonusLabel;
+            badge.className = `inline-block text-white font-cartoon text-xs px-3 py-1 rounded-full mb-4 border border-white uppercase shadow-md ${badgeColor}`;
+
+            const randomQuote = rating.quotes[Math.floor(Math.random() * rating.quotes.length)];
+            document.getElementById('fartQuote').innerText = `"${randomQuote}"`;
+
+            // Style modal colors
+            const modalBox = document.getElementById('fartModalContent');
+            modalBox.className = `bg-gradient-to-b ${rating.bg} rounded-3xl p-8 max-w-md w-full shadow-2xl border-4 border-green-500 text-center transform scale-95 transition-transform duration-300 relative overflow-hidden`;
+
+            document.getElementById('scoreText').innerText = state.score;
+
+            // Automatically upload score to Supabase
+            if (supabaseClient) {
+                uploadScoreToSupabase(state.score, releasedGas);
+            }
+
+            // Open celebratory scorecard
+            setTimeout(() => {
+                showFartModal(true);
+            }, 600);
+        }
+
+        async function uploadScoreToSupabase(totalScore, singleBlastGas) {
+            if (!supabaseClient) return;
+            const name = localStorage.getItem("gas_blast_player_name") || "Anonymous Gus";
+            try {
+                const { error } = await supabaseClient
+                    .from('leaderboard')
+                    .insert([{ player_name: name, score: totalScore, best_fart: singleBlastGas }]);
+                if (error) throw error;
+            } catch (err) {
+                console.error("Error inserting score to Supabase:", err);
+            }
+        }
+
+        async function fetchLeaderboard() {
+            const listEl = document.getElementById('leaderboardList');
+            if (!supabaseClient) {
+                listEl.innerHTML = `
+                    <div class="text-center p-4 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-800">
+                        ⚠️ <strong>Leaderboard Unconfigured</strong><br>
+                        Please follow the steps in the <strong>supabase_setup.md</strong> guide on your left to input your project credentials in this HTML file!
+                    </div>`;
+                return;
+            }
+            try {
+                listEl.innerHTML = `<div class="text-center text-xs text-gray-500 py-6 animate-pulse">Loading online scores...</div>`;
+                const { data, error } = await supabaseClient
+                    .from('leaderboard')
+                    .select('*')
+                    .order('score', { ascending: false })
+                    .limit(10);
+                if (error) throw error;
+
+                if (!data || data.length === 0) {
+                    listEl.innerHTML = `<div class="text-center text-xs text-gray-400 py-6">No scores posted yet. Unleash a huge blast to claim #1 rank!</div>`;
+                    return;
+                }
+
+                listEl.innerHTML = data.map((row, idx) => {
+                    let badge = "🏅";
+                    if (idx === 0) badge = "🥇";
+                    else if (idx === 1) badge = "🥈";
+                    else if (idx === 2) badge = "🥉";
+                    return `
+                        <div class="bg-white p-2.5 rounded-xl border border-emerald-100 flex justify-between items-center shadow-sm">
+                            <div class="flex items-center gap-2">
+                                <span class="text-sm">${badge}</span>
+                                <span class="text-xs font-cartoon text-emerald-950">${row.player_name}</span>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-xs font-cartoon text-orange-600">${row.score} pts</div>
+                                <div class="text-[9px] text-gray-400 font-bold">${row.best_fart ? row.best_fart.toFixed(1) : '0'}L Fart</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (err) {
+                console.error("Error reading leaderboard:", err);
+                listEl.innerHTML = `<div class="text-center text-xs text-red-500 py-4">Failed to fetch scores. Check your DB policies.</div>`;
+            }
+        }
+
+        // --- UTILITY MODALS & DRAWER TRIGGERS ---
+
+        function toggleShop(open) {
+            const shop = document.getElementById('shopDrawer');
+            if (open) {
+                updateDashboardAndShop();
+                shop.classList.remove('translate-x-full');
+            } else {
+                shop.classList.add('translate-x-full');
+            }
+        }
+
+        function toggleSkins(open) {
+            const skins = document.getElementById('skinsDrawer');
+            if (open) {
+                updateDashboardAndShop();
+                skins.classList.remove('translate-x-full');
+            } else {
+                skins.classList.add('translate-x-full');
+            }
+        }
+
+        function toggleLeaderboard(open) {
+            const lDrawer = document.getElementById('leaderboardDrawer');
+            if (open) {
+                fetchLeaderboard();
+                lDrawer.classList.remove('translate-x-full');
+            } else {
+                lDrawer.classList.add('translate-x-full');
+            }
+        }
+
+        function savePlayerName() {
+            const input = document.getElementById('playerNameInput');
+            const name = input.value.trim();
+            if (name) {
+                localStorage.setItem("gas_blast_player_name", name);
+                fetchLeaderboard();
+            } else {
+                input.placeholder = "Enter a name!";
+            }
+        }
+
+        function toggleMute() {
+            state.isMuted = !state.isMuted;
+            document.getElementById('muteBtn').innerText = state.isMuted ? '🔇' : '🔊';
+        }
+
+        function showHelpModal(show) {
+            const modal = document.getElementById('helpModal');
+            if (show) {
+                modal.classList.remove('hidden');
+                setTimeout(() => modal.firstElementChild.classList.remove('scale-95'), 10);
+            } else {
+                modal.firstElementChild.classList.add('scale-95');
+                setTimeout(() => modal.classList.add('hidden'), 200);
+            }
+        }
+
+        function showFartModal(show) {
+            const modal = document.getElementById('fartScoreModal');
+            if (show) {
+                modal.classList.remove('hidden');
+                setTimeout(() => modal.firstElementChild.classList.remove('scale-95'), 10);
+            } else {
+                modal.firstElementChild.classList.add('scale-95');
+                setTimeout(() => modal.classList.add('hidden'), 200);
+            }
+        }
+
+        function closeFartModal() {
+            showFartModal(false);
+            setRandomDemand();
+        }
+
+        // Automatic ambient gurgling simulation
+        setInterval(() => {
+            if (state.gasLevel > 15 && Math.random() < 0.65) {
+                spawnStomachGurgleBubble();
+                if (Math.random() < 0.45) {
+                    playSynthSound('gurgle', 90 + Math.random() * 50, 0.4);
+                }
+            }
+        }, 1300);
+
+        // Onload init execution
+        window.onload = function() {
+            randomizeFoods();
+            setRandomDemand();
+            updateBellyScale();
+            updateGasProgress();
+            updateDashboardAndShop();
+
+            // Load saved nickname if exists
+            const savedName = localStorage.getItem("gas_blast_player_name");
+            if (savedName) {
+                document.getElementById('playerNameInput').value = savedName;
+            }
+        };
+
+    </script>
+</body>
+</html>
