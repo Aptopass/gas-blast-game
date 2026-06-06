@@ -56,9 +56,9 @@
     <div id="toxicityFog" class="fixed inset-0 pointer-events-none bg-emerald-500/0 z-40 transition-colors duration-1000 mix-blend-color-burn"></div>
 
     <!-- Top Dashboard Header -->
-    <header class="p-3 md:p-4 flex justify-between items-center w-full max-w-4xl mx-auto z-10 relative">
-        <div class="flex flex-col gap-1">
-            <div class="flex items-center gap-2 bg-white/90 backdrop-blur px-4 py-2 rounded-full shadow-md border border-orange-200">
+    <header class="p-3 md:p-4 flex flex-col sm:flex-row justify-between items-center w-full max-w-4xl mx-auto z-10 relative gap-3">
+        <div class="flex flex-col gap-1 w-full sm:w-auto">
+            <div class="flex items-center justify-between sm:justify-start gap-2 bg-white/90 backdrop-blur px-4 py-2 rounded-full shadow-md border border-orange-200">
                 <span class="text-xl md:text-2xl font-cartoon text-green-600">💨 Gus's Gas Blast!</span>
                 <span class="bg-red-500 text-white font-cartoon text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider animate-pulse">EXTREME</span>
             </div>
@@ -72,23 +72,27 @@
             </div>
         </div>
 
-        <div class="flex items-center gap-2">
+        <div class="flex items-center justify-end gap-2 w-full sm:w-auto flex-wrap">
+            <!-- Auth Profile Button -->
+            <button id="profileBtn" onclick="openAuthModal()" class="bg-blue-500 hover:bg-blue-600 text-white font-cartoon px-4 py-2.5 rounded-full shadow-md transition transform active:scale-95 flex items-center gap-1.5 border-b-4 border-blue-700 text-xs">
+                <span id="profileBtnIcon">🔑</span> <span id="profileBtnText">LOGIN</span>
+            </button>
             <!-- Leaderboard Button -->
-            <button onclick="toggleLeaderboard(true)" class="bg-emerald-400 hover:bg-emerald-500 text-emerald-950 font-cartoon px-4 py-2.5 rounded-full shadow-md transition transform active:scale-95 flex items-center gap-1.5 border-b-4 border-emerald-600 text-sm">
-                <span>🏆</span> <span class="hidden sm:inline">LEADERS</span>
+            <button onclick="toggleLeaderboard(true)" class="bg-emerald-400 hover:bg-emerald-500 text-emerald-950 font-cartoon px-4 py-2.5 rounded-full shadow-md transition transform active:scale-95 flex items-center gap-1.5 border-b-4 border-emerald-600 text-xs">
+                <span>🏆</span> <span>LEADERS</span>
             </button>
             <!-- Shop Button -->
-            <button onclick="toggleShop(true)" class="bg-amber-400 hover:bg-amber-500 text-amber-950 font-cartoon px-4 py-2.5 rounded-full shadow-md transition transform active:scale-95 flex items-center gap-1.5 border-b-4 border-amber-600 text-sm">
-                <span>🛒</span> <span class="hidden sm:inline">GAS SHOP</span>
+            <button onclick="toggleShop(true)" class="bg-amber-400 hover:bg-amber-500 text-amber-950 font-cartoon px-4 py-2.5 rounded-full shadow-md transition transform active:scale-95 flex items-center gap-1.5 border-b-4 border-amber-600 text-xs">
+                <span>🛒</span> <span>SHOP</span>
             </button>
             <!-- Skins Button -->
-            <button onclick="toggleSkins(true)" class="bg-blue-400 hover:bg-blue-500 text-blue-950 font-cartoon px-4 py-2.5 rounded-full shadow-md transition transform active:scale-95 flex items-center gap-1.5 border-b-4 border-blue-600 text-sm">
-                <span>👕</span> <span class="hidden sm:inline">SKINS</span>
+            <button onclick="toggleSkins(true)" class="bg-purple-400 hover:bg-purple-500 text-purple-950 font-cartoon px-4 py-2.5 rounded-full shadow-md transition transform active:scale-95 flex items-center gap-1.5 border-b-4 border-purple-600 text-xs">
+                <span>👕</span> <span>SKINS</span>
             </button>
-            <button id="muteBtn" onclick="toggleMute()" class="bg-white/90 hover:bg-white p-2.5 rounded-full shadow-md transition transform active:scale-95 text-lg border border-gray-200">
+            <button id="muteBtn" onclick="toggleMute()" class="bg-white/90 hover:bg-white p-2.5 rounded-full shadow-md transition transform active:scale-95 text-sm border border-gray-200">
                 🔊
             </button>
-            <button id="helpBtn" onclick="showHelpModal(true)" class="bg-white/90 hover:bg-white p-2.5 rounded-full shadow-md transition transform active:scale-95 text-lg font-cartoon text-blue-600 border border-gray-200">
+            <button id="helpBtn" onclick="showHelpModal(true)" class="bg-white/90 hover:bg-white p-2.5 rounded-full shadow-md transition transform active:scale-95 text-sm font-cartoon text-blue-600 border border-gray-200">
                 ?
             </button>
         </div>
@@ -311,6 +315,65 @@
         </div>
     </div>
 
+    <!-- USER AUTHENTICATION MODAL -->
+    <div id="authModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-opacity duration-300 hidden">
+        <div class="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl border-4 border-blue-400 text-center relative">
+            <button onclick="closeAuthModal()" class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 font-bold text-lg px-2">✕</button>
+            
+            <div id="authProfileView" class="hidden">
+                <span class="text-5xl">👑</span>
+                <h2 class="text-xl font-cartoon text-blue-600 mt-2 mb-1" id="profileDisplayName">Player Profile</h2>
+                <p class="text-xs text-gray-500 mb-4" id="profileEmail">email@domain.com</p>
+                
+                <div class="bg-blue-50 p-3 rounded-xl border border-blue-100 text-left mb-4">
+                    <label class="block text-[10px] font-bold text-blue-800 mb-1">UPDATE NICKNAME:</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="profileNicknameInput" placeholder="New nickname..." class="flex-1 px-3 py-1.5 text-xs border border-blue-200 rounded-lg focus:outline-none focus:border-blue-500 font-cartoon" maxlength="15">
+                        <button onclick="updateUserNickname()" class="bg-blue-500 hover:bg-blue-600 text-white font-cartoon text-xs px-3 py-1.5 rounded-lg">UPDATE</button>
+                    </div>
+                </div>
+                
+                <button onclick="handleSignOut()" class="w-full bg-red-500 hover:bg-red-600 text-white font-cartoon text-sm py-2.5 rounded-xl border-b-4 border-red-700 transition transform active:scale-95">
+                    LOGOUT / SIGN OUT
+                </button>
+            </div>
+
+            <div id="authFormView">
+                <span class="text-5xl">⚡</span>
+                <h2 class="text-2xl font-cartoon text-blue-600 mb-2">Gus Member Club</h2>
+                <p class="text-xs text-gray-500 mb-4">Save scores to the global board & unlock premium items!</p>
+                
+                <!-- Auth Form Message Board -->
+                <div id="authErrorMsg" class="hidden text-[11px] font-bold text-red-600 bg-red-50 p-2 rounded-lg border border-red-200 mb-3 text-center"></div>
+
+                <!-- Input elements -->
+                <div class="space-y-2 mb-4 text-left">
+                    <div id="signUpNameWrapper">
+                        <label class="block text-[10px] font-bold text-gray-500 mb-0.5">NICKNAME:</label>
+                        <input type="text" id="authNameInput" placeholder="Choose a funny nickname" class="w-full px-3 py-2 text-xs border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 font-cartoon" maxlength="15">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-500 mb-0.5">EMAIL ADDRESS:</label>
+                        <input type="email" id="authEmailInput" placeholder="your@email.com" class="w-full px-3 py-2 text-xs border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 font-cartoon">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-500 mb-0.5">PASSWORD:</label>
+                        <input type="password" id="authPasswordInput" placeholder="Min. 6 characters" class="w-full px-3 py-2 text-xs border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 font-cartoon">
+                    </div>
+                </div>
+
+                <button id="authPrimaryBtn" onclick="handleAuthSubmit()" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-cartoon text-base py-3 rounded-2xl border-b-4 border-blue-700 transition transform active:scale-95 shadow-md">
+                    CREATE ACCOUNT
+                </button>
+
+                <div class="mt-4 text-xs text-gray-600">
+                    <span id="authToggleText">Already a member?</span> 
+                    <button id="authToggleBtn" onclick="toggleAuthMode()" class="text-blue-500 font-bold hover:underline">Sign In here</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- GAS SHOP DRAWER -->
     <div id="shopDrawer" class="fixed top-0 bottom-0 right-0 w-full max-w-xs md:max-w-sm bg-amber-50 z-50 border-l-4 border-amber-400 shadow-2xl drawer-transition transform translate-x-full flex flex-col justify-between">
         <div class="p-4 flex-1 overflow-y-auto">
@@ -386,25 +449,25 @@
     </div>
 
     <!-- SKINS SELECTION DRAWER -->
-    <div id="skinsDrawer" class="fixed top-0 bottom-0 right-0 w-full max-w-xs md:max-w-sm bg-blue-50 z-50 border-l-4 border-blue-400 shadow-2xl drawer-transition transform translate-x-full flex flex-col justify-between">
+    <div id="skinsDrawer" class="fixed top-0 bottom-0 right-0 w-full max-w-xs md:max-w-sm bg-purple-50 z-50 border-l-4 border-purple-400 shadow-2xl drawer-transition transform translate-x-full flex flex-col justify-between">
         <div class="p-4 flex-1 overflow-y-auto">
-            <div class="flex justify-between items-center pb-4 border-b border-blue-200">
-                <h3 class="text-xl font-cartoon text-blue-900 flex items-center gap-1.5">
+            <div class="flex justify-between items-center pb-4 border-b border-purple-200">
+                <h3 class="text-xl font-cartoon text-purple-900 flex items-center gap-1.5">
                     <span>👕</span> CHARACTER SKINS
                 </h3>
-                <button onclick="toggleSkins(false)" class="text-blue-900 font-bold bg-blue-200/80 hover:bg-blue-300 px-3 py-1 rounded-full text-sm">CLOSE</button>
+                <button onclick="toggleSkins(false)" class="text-purple-900 font-bold bg-purple-200/80 hover:bg-purple-300 px-3 py-1 rounded-full text-sm">CLOSE</button>
             </div>
 
             <!-- Skin List -->
             <div class="mt-4 space-y-3">
                 
                 <!-- Skin 1: Classic Gus -->
-                <button onclick="selectSkin('classic')" class="w-full bg-white p-3 rounded-xl border-2 border-blue-400 flex items-center gap-3 text-left transition transform hover:scale-102">
+                <button onclick="selectSkin('classic')" class="w-full bg-white p-3 rounded-xl border-2 border-purple-400 flex items-center gap-3 text-left transition transform hover:scale-102">
                     <span class="text-3xl">👦</span>
                     <div>
-                        <h4 class="text-xs font-cartoon text-blue-950">Classic Gus</h4>
+                        <h4 class="text-xs font-cartoon text-purple-950">Classic Gus</h4>
                         <p class="text-[10px] text-gray-500">The classic rumbly stomach champion.</p>
-                        <span class="text-[9px] text-blue-600 font-bold">UNLOCKED (SELECTED)</span>
+                        <span class="text-[9px] text-purple-600 font-bold">UNLOCKED (SELECTED)</span>
                     </div>
                 </button>
 
@@ -412,7 +475,7 @@
                 <button id="skinToxicBtn" onclick="selectSkin('toxic')" class="w-full bg-white p-3 rounded-xl border-2 border-gray-200 flex items-center gap-3 text-left transition transform hover:scale-102">
                     <span class="text-3xl">☣️</span>
                     <div>
-                        <h4 class="text-xs font-cartoon text-blue-950">Toxic Toby</h4>
+                        <h4 class="text-xs font-cartoon text-purple-950">Toxic Toby</h4>
                         <p class="text-[10px] text-gray-500">Starts out green. Highly volatile hazard-vest boy.</p>
                         <span id="skinToxicStatus" class="text-[9px] text-amber-600 font-bold">COST: 500 points</span>
                     </div>
@@ -422,7 +485,7 @@
                 <button id="skinGrandpaBtn" onclick="selectSkin('grandpa')" class="w-full bg-white p-3 rounded-xl border-2 border-gray-200 flex items-center gap-3 text-left transition transform hover:scale-102">
                     <span class="text-3xl">👴</span>
                     <div>
-                        <h4 class="text-xs font-cartoon text-blue-950">Grandpa Gurgle</h4>
+                        <h4 class="text-xs font-cartoon text-purple-950">Grandpa Gurgle</h4>
                         <p class="text-[10px] text-gray-500">He holds his nose while unleashing extreme vintage rumbles.</p>
                         <span id="skinGrandpaStatus" class="text-[9px] text-amber-600 font-bold">COST: 1000 points</span>
                     </div>
@@ -430,7 +493,7 @@
 
             </div>
         </div>
-        <div class="p-4 bg-blue-100 border-t border-blue-200 text-[10px] text-blue-800 text-center">
+        <div class="p-4 bg-purple-100 border-t border-purple-200 text-[10px] text-purple-800 text-center">
             Unlocking skins is permanent and uses your current points balance!
         </div>
     </div>
@@ -445,13 +508,11 @@
                 <button onclick="toggleLeaderboard(false)" class="text-emerald-900 font-bold bg-emerald-200/80 hover:bg-emerald-300 px-3 py-1 rounded-full text-sm">CLOSE</button>
             </div>
 
-            <!-- Nickname Setup -->
-            <div class="mt-4 p-3 bg-white rounded-xl border border-emerald-200 shadow-sm">
-                <label class="block text-[11px] font-bold text-emerald-800 mb-1">YOUR FART CHAMPION NICKNAME:</label>
-                <div class="flex gap-2">
-                    <input type="text" id="playerNameInput" placeholder="Enter name..." class="flex-1 px-3 py-1.5 text-xs border-2 border-emerald-200 rounded-lg focus:outline-none focus:border-emerald-500 font-cartoon" maxlength="15">
-                    <button onclick="savePlayerName()" class="bg-emerald-500 hover:bg-emerald-600 text-white font-cartoon text-xs px-3 rounded-lg border-b-2 border-emerald-700 transition transform active:scale-95">SAVE</button>
-                </div>
+            <!-- Active User Display info -->
+            <div class="mt-4 p-3 bg-white rounded-xl border border-emerald-200 shadow-sm text-center">
+                <span id="leaderboardProfileNotice" class="text-[11px] font-bold text-emerald-800">
+                    Login to post your scores on the public board!
+                </span>
             </div>
 
             <!-- Scores List -->
@@ -460,7 +521,7 @@
             </div>
         </div>
         <div class="p-4 bg-emerald-100 border-t border-emerald-200 text-[10px] text-emerald-800 text-center">
-            Scores upload automatically! Add your credentials to begin.
+            Scores upload automatically when you release massive blasts!
         </div>
     </div>
 
@@ -472,7 +533,7 @@
                 <p>🙋‍♂️ <strong>Feed the Boy:</strong> Feed him items that match his craving speech bubble for a <strong>2x Gas Multiplier!</strong></p>
                 <p>💥 <strong>Interactive Blast:</strong> Tapping "Release" starts a quick swinging power-meter. Hit the red <strong>MEGA ZONE</strong> for massive scoring bonuses!</p>
                 <p>🛒 <strong>Unlock Upgrades & Skins:</strong> Gather points to buy cool modifiers or funny characters like Toxic Toby and Grandpa Gurgle!</p>
-                <p>☣️ <strong>Stink level:</strong> Keep unleashing farts to fog up the room! High stink multipliers increase overall point gains.</p>
+                <p>🔑 <strong>Create account:</strong> Log in with your email to lock down your high scores securely!</p>
             </div>
             <button onclick="showHelpModal(false)" class="mt-6 w-full bg-yellow-400 hover:bg-yellow-500 text-amber-900 font-cartoon py-3 rounded-2xl border-b-4 border-yellow-600 transition transform active:scale-95 text-sm">
                 LET'S BLAST!
@@ -599,7 +660,10 @@
             qteDirection: 1, // 1 = right, -1 = left
             qtePosition: 0, // 0 to 100%
             qteSpeed: 2.2, // Oscillation speed
-            qteLoopId: null
+            qteLoopId: null,
+            // User session state
+            currentUser: null,
+            isSignUpMode: true
         };
 
         // --- WEB AUDIO API PROCEDURAL SYNTHESIZER ---
@@ -654,7 +718,6 @@
                 lfo.stop(audioCtx.currentTime + duration);
                 osc.stop(audioCtx.currentTime + duration);
             } else if (type === 'alarm') {
-                // Short warning beep
                 osc.type = 'sine';
                 osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
                 gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
@@ -669,7 +732,6 @@
             if (state.isMuted) return;
             initAudio();
 
-            // Longer farts if power is high or timing is amazing
             const duration = (0.5 + (power / 100) * 1.5) * timingMultiplier; 
             const baseFreq = (80 - (power / 100) * 45) / (timingMultiplier * 0.9);
             
@@ -684,7 +746,6 @@
             osc.frequency.setValueAtTime(baseFreq, audioCtx.currentTime);
             osc.frequency.exponentialRampToValueAtTime(12, audioCtx.currentTime + duration);
             
-            // Flapping cheek resonance oscillation
             lfo.type = 'square';
             lfo.frequency.setValueAtTime(22 - (power / 100) * 8, audioCtx.currentTime);
             lfoGain.gain.setValueAtTime(35 + (power / 100) * 50, audioCtx.currentTime);
@@ -710,7 +771,6 @@
             lfo.stop(audioCtx.currentTime + duration);
             osc.stop(audioCtx.currentTime + duration);
 
-            // Secondary layers
             if (power > 40) {
                 setTimeout(() => {
                     if (state.isMuted) return;
@@ -782,7 +842,6 @@
 
             const count = Math.floor(25 + power * 2.2);
             
-            // Choose stinky cloud color based on chosen skin or power
             let particleColor = colorTheme || '110, 190, 70'; // classic green
             if (state.currentSkin === 'toxic') {
                 particleColor = '180, 210, 20'; // neon green/yellow
@@ -799,7 +858,6 @@
                 }, i * 15);
             }
 
-            // Screen rumble shakes the viewport
             const mainContainer = document.getElementById('charContainer');
             mainContainer.classList.add('rumbling');
             let rumbleStrength = 6 + (power / 8);
@@ -845,7 +903,6 @@
                     ctx.beginPath();
                     ctx.arc(b.x, b.y, b.size, 0, Math.PI * 2);
                     
-                    // Bubble color matches selected skin
                     if (state.currentSkin === 'toxic') {
                         ctx.fillStyle = 'rgba(192, 202, 51, 0.4)';
                         ctx.strokeStyle = 'rgba(130, 140, 20, 0.7)';
@@ -863,7 +920,6 @@
             requestAnimationFrame(animateBubble);
         }
 
-        // Main particle execution loop
         function particleLoop() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             particles = particles.filter(p => p.alpha > 0);
@@ -879,7 +935,6 @@
 
         function randomizeFoods() {
             let pool = [...FOODS];
-            // If golden bean upgrade unlocked, occasionally add it to pool
             if (state.upgrades.golden_bean > 0) {
                 pool.push(GOLDEN_BEAN);
             }
@@ -960,10 +1015,8 @@
             }
         }
 
-        // Skin swapping triggers SVG element changes
         function selectSkin(skinId) {
             if (skinId !== 'classic' && !state.unlockedSkins.includes(skinId)) {
-                // Skin is locked, attempt to unlock with points
                 const cost = skinId === 'toxic' ? state.prices.skin_toxic : state.prices.skin_grandpa;
                 if (state.score >= cost) {
                     state.score -= cost;
@@ -971,14 +1024,13 @@
                     document.getElementById('scoreText').innerText = state.score;
                     updateDashboardAndShop();
                 } else {
-                    alert("Not enough points to unlock this skin! Go fart some more!");
+                    showAuthError("Not enough points to unlock this skin!");
                     return;
                 }
             }
 
             state.currentSkin = skinId;
 
-            // Update SVGs
             const classicHair = document.getElementById('hairClassic');
             const toxicHair = document.getElementById('hairToxic');
             const grandpaHair = document.getElementById('hairGrandpa');
@@ -997,10 +1049,8 @@
             const armLeft = document.getElementById('armLeft');
             const armRight = document.getElementById('armRight');
 
-            // Hide all accents
             [classicHair, toxicHair, grandpaHair, grandpaSpecs, stripe1, stripe2, toxicShirtAccents, grandpaAccents].forEach(el => el.classList.add('hidden'));
 
-            // Reset default colors
             headSkin.setAttribute('fill', '#fbc3a6');
             earLeft.setAttribute('fill', '#fbc3a6');
             earRight.setAttribute('fill', '#fbc3a6');
@@ -1022,7 +1072,6 @@
                 bellyBg.setAttribute('fill', '#827717');
                 armLeft.setAttribute('stroke', '#827717');
                 armRight.setAttribute('stroke', '#827717');
-                // Green face
                 headSkin.setAttribute('fill', '#d4e157');
                 earLeft.setAttribute('fill', '#d4e157');
                 earRight.setAttribute('fill', '#d4e157');
@@ -1042,7 +1091,6 @@
             toggleSkins(false);
         }
 
-        // Expand belly visually
         function updateBellyScale() {
             const stomach = document.getElementById('stomachGroup');
             const gasPercentage = state.gasLevel / 100;
@@ -1059,15 +1107,14 @@
             leftCheek.style.opacity = blushOpacity;
             rightCheek.style.opacity = blushOpacity;
 
-            // Make skin face tint green/red when expanding
             const headSkin = document.getElementById('headSkin');
             if (state.currentSkin === 'classic' || state.currentSkin === 'grandpa') {
                 if (gasPercentage > 0.8) {
-                    headSkin.setAttribute('fill', '#a5d6a7'); // Starts turning slightly green from holding in gas!
+                    headSkin.setAttribute('fill', '#a5d6a7'); 
                 } else if (gasPercentage > 0.5) {
-                    headSkin.setAttribute('fill', '#ffcc80'); // turns orange/hot
+                    headSkin.setAttribute('fill', '#ffcc80'); 
                 } else {
-                    headSkin.setAttribute('fill', '#fbc3a6'); // normal skin
+                    headSkin.setAttribute('fill', '#fbc3a6'); 
                 }
             }
 
@@ -1080,7 +1127,6 @@
                 document.getElementById('statusPopup').classList.remove('hidden');
                 document.getElementById('statusPopup').innerText = "🔴 CRITICAL PRESSURE!";
                 
-                // Play warning ticks occasionally
                 if (Math.random() < 0.25) {
                     playSynthSound('alarm', 580, 0.08);
                 }
@@ -1112,33 +1158,26 @@
             }
         }
 
-        // Room Toxicity (Mist & Ambient fog)
         function changeRoomToxicity(addedStink) {
             state.roomToxicity = Math.max(0, Math.min(100, state.roomToxicity + addedStink));
             
-            // Render UI Tracker
             document.getElementById('toxicityBar').style.width = `${state.roomToxicity}%`;
             document.getElementById('toxicityPercent').innerText = `${Math.round(state.roomToxicity)}%`;
 
-            // Adjust overall green/yellow tint visibility
             const opacity = (state.roomToxicity / 100) * 0.45;
             document.getElementById('toxicityFog').style.backgroundColor = `rgba(16, 185, 129, ${opacity})`;
 
-            // If room hits 100% toxicity, trigger special evacuation bonus!
             if (state.roomToxicity >= 100) {
                 setTimeout(() => {
                     playSynthSound('alarm', 880, 0.4);
                     playSynthSound('alarm', 660, 0.4);
                     
-                    // Award bonus score!
                     state.score += 500;
                     document.getElementById('scoreText').innerText = state.score;
                     
-                    // Reset room toxicity slowly
                     state.roomToxicity = 0;
                     changeRoomToxicity(0);
                     
-                    // Display message in dialogue box
                     document.getElementById('demandText').innerHTML = `☣️ <span class="text-red-500 font-cartoon">HAZMAT EVACUATION!</span> Double air fresheners deployed! (+500 BONUS)`;
                 }, 1000);
             }
@@ -1146,20 +1185,16 @@
 
         // --- UPGRADES SHOP LOGIC ---
         function updateDashboardAndShop() {
-            // Update current budget labels
             document.getElementById('shopWallet').innerText = `${state.score} pts`;
             
-            // Level labels
             document.getElementById('upgSpicyLabel').innerText = `Lvl ${state.upgrades.spicy}`;
             document.getElementById('upgSodaLabel').innerText = `Lvl ${state.upgrades.soda}`;
             document.getElementById('upgGoldenBeanLabel').innerText = state.upgrades.golden_bean > 0 ? "UNLOCKED" : "LOCKED";
 
-            // Upgrades costs
             document.getElementById('upgSpicyCost').innerText = `${state.prices.spicy} pts`;
             document.getElementById('upgSodaCost').innerText = `${state.prices.soda} pts`;
             document.getElementById('upgGoldenBeanCost').innerText = `${state.prices.golden_bean} pts`;
 
-            // Skin unlock buttons update
             const toxicStatus = document.getElementById('skinToxicStatus');
             if (state.unlockedSkins.includes('toxic')) {
                 toxicStatus.innerText = state.currentSkin === 'toxic' ? "SELECTED" : "UNLOCKED (TAP SELECT)";
@@ -1180,10 +1215,8 @@
         function buyUpgrade(type) {
             const cost = state.prices[type];
             if (state.score >= cost) {
-                // Deduct points
                 state.score -= cost;
                 
-                // Add Upgrade Levels
                 if (type === 'spicy') {
                     state.upgrades.spicy++;
                     state.prices.spicy = Math.round(state.prices.spicy * 1.6);
@@ -1192,18 +1225,16 @@
                     state.prices.soda = Math.round(state.prices.soda * 1.6);
                 } else if (type === 'golden_bean') {
                     state.upgrades.golden_bean = 1;
-                    // Disable button
                     document.getElementById('upgGoldenBeanBtn').disabled = true;
                     document.getElementById('upgGoldenBeanBtn').classList.add('bg-gray-400', 'cursor-not-allowed');
                 }
 
-                // Update score tracker
                 document.getElementById('scoreText').innerText = state.score;
                 updateDashboardAndShop();
-                randomizeFoods(); // reload tray to include golden beans potentially
+                randomizeFoods(); 
                 playSynthSound('alarm', 750, 0.15);
             } else {
-                alert("You don't have enough points! Feed Gus matching items to save up points.");
+                showAuthError("You don't have enough points for upgrades!");
             }
         }
 
@@ -1223,13 +1254,11 @@
                 let multiplier = 1;
                 let matched = false;
 
-                // Match verification
                 if (state.currentDemand.id === food.category || (state.currentDemand.id === 'any')) {
-                    multiplier = 2; // Double gas boost for matching craving!
+                    multiplier = 2; 
                     matched = true;
                 }
 
-                // Calculate additional points/gas from upgrades
                 let baseGas = food.gas;
                 if (food.category === 'spicy' && state.upgrades.spicy > 0) {
                     baseGas += (food.gas * 0.5 * state.upgrades.spicy);
@@ -1309,23 +1338,19 @@
                 return;
             }
 
-            // Open timing mini game modal
             document.getElementById('qteModal').classList.remove('hidden');
             state.qteActive = true;
             state.qtePosition = 0;
             state.qteDirection = 1;
             
-            // Dynamically adjust QTE difficulty based on gas level (higher gas = faster swing)
             state.qteSpeed = 2.0 + (state.gasLevel / 100) * 3.5;
 
-            // Start oscillating Dial Loop
             state.qteLoopId = requestAnimationFrame(qteOscillationLoop);
         }
 
         function qteOscillationLoop() {
             if (!state.qteActive) return;
 
-            // Adjust position
             state.qtePosition += state.qteSpeed * state.qteDirection;
             if (state.qtePosition >= 100) {
                 state.qtePosition = 100;
@@ -1335,13 +1360,11 @@
                 state.qteDirection = 1;
             }
 
-            // Update DOM element position
             document.getElementById('qtePointer').style.left = `${state.qtePosition}%`;
 
             state.qteLoopId = requestAnimationFrame(qteOscillationLoop);
         }
 
-        // Execute Fart based on QTE slider timing
         function commitFartBlast() {
             state.qteActive = false;
             cancelAnimationFrame(state.qteLoopId);
@@ -1352,9 +1375,8 @@
             let bonusLabel = "DECENT TIMING!";
             let badgeColor = "bg-yellow-500";
 
-            // Determine QTE zone accuracy
             if (state.qtePosition >= 75 && state.qtePosition <= 95) {
-                timingMultiplier = 1.6; // Massive bonus multiplier!
+                timingMultiplier = 1.6; 
                 bonusLabel = "🌟 MEGA BLAST ZONE! (1.6x points!) 🌟";
                 badgeColor = "bg-red-500 animate-bounce";
             } else if (state.qtePosition >= 40 && state.qtePosition < 75) {
@@ -1367,22 +1389,18 @@
                 badgeColor = "bg-gray-500";
             }
 
-            // Reset game state
             state.gasLevel = 0;
             updateBellyScale();
             updateGasProgress();
             updateGusFace('normal');
 
-            // Play physical synth sound and canvas particle cloud based on power and timing
             playProceduralFart(releasedGas, timingMultiplier);
             createFartCloud(releasedGas);
 
-            // Add room lingering toxicity
             changeRoomToxicity(releasedGas * 0.45);
 
             state.fartCount++;
             
-            // Choose stinky category
             let rating = FART_TYPES[0];
             for (let i = FART_TYPES.length - 1; i >= 0; i--) {
                 if (releasedGas >= FART_TYPES[i].minGas) {
@@ -1391,7 +1409,6 @@
                 }
             }
 
-            // Calculate final score
             const basePoints = releasedGas * rating.pointsBase;
             const finalScoreAdded = Math.round(basePoints * timingMultiplier * (1 + state.fartCount * 0.05));
             state.score += finalScoreAdded;
@@ -1401,13 +1418,11 @@
                 document.getElementById('bestFartText').innerText = state.bestFart;
             }
 
-            // Populate celebration modal
             document.getElementById('fartTypeTitle').innerText = rating.title;
             document.getElementById('fartLitres').innerText = `${releasedGas.toFixed(1)} L`;
             document.getElementById('fartPointsText').innerText = `+${finalScoreAdded}`;
             document.getElementById('fartRumbleText').innerText = rating.rumble.toUpperCase();
             
-            // Timing badge customization
             const badge = document.getElementById('fartTimingBadge');
             badge.innerText = bonusLabel;
             badge.className = `inline-block text-white font-cartoon text-xs px-3 py-1 rounded-full mb-4 border border-white uppercase shadow-md ${badgeColor}`;
@@ -1415,26 +1430,23 @@
             const randomQuote = rating.quotes[Math.floor(Math.random() * rating.quotes.length)];
             document.getElementById('fartQuote').innerText = `"${randomQuote}"`;
 
-            // Style modal colors
             const modalBox = document.getElementById('fartModalContent');
             modalBox.className = `bg-gradient-to-b ${rating.bg} rounded-3xl p-8 max-w-md w-full shadow-2xl border-4 border-green-500 text-center transform scale-95 transition-transform duration-300 relative overflow-hidden`;
 
             document.getElementById('scoreText').innerText = state.score;
 
-            // Automatically upload score to Supabase
-            if (supabaseClient) {
+            if (supabaseClient && state.currentUser) {
                 uploadScoreToSupabase(state.score, releasedGas);
             }
 
-            // Open celebratory scorecard
             setTimeout(() => {
                 showFartModal(true);
             }, 600);
         }
 
         async function uploadScoreToSupabase(totalScore, singleBlastGas) {
-            if (!supabaseClient) return;
-            const name = localStorage.getItem("gas_blast_player_name") || "Anonymous Gus";
+            if (!supabaseClient || !state.currentUser) return;
+            const name = state.currentUser.user_metadata?.display_name || "Gassy Guest";
             try {
                 const { error } = await supabaseClient
                     .from('leaderboard')
@@ -1451,7 +1463,7 @@
                 listEl.innerHTML = `
                     <div class="text-center p-4 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-800">
                         ⚠️ <strong>Leaderboard Unconfigured</strong><br>
-                        Please follow the steps in the <strong>supabase_setup.md</strong> guide on your left to input your project credentials in this HTML file!
+                        Please follow the setup guide steps to load credentials.
                     </div>`;
                 return;
             }
@@ -1493,6 +1505,174 @@
             }
         }
 
+        // --- AUTHENTICATION CONTROLLER HANDLERS ---
+        function toggleAuthMode() {
+            state.isSignUpMode = !state.isSignUpMode;
+            const toggleText = document.getElementById('authToggleText');
+            const toggleBtn = document.getElementById('authToggleBtn');
+            const primaryBtn = document.getElementById('authPrimaryBtn');
+            const nameField = document.getElementById('signUpNameWrapper');
+
+            if (state.isSignUpMode) {
+                toggleText.innerText = "Already a member?";
+                toggleBtn.innerText = "Sign In here";
+                primaryBtn.innerText = "CREATE ACCOUNT";
+                nameField.classList.remove('hidden');
+            } else {
+                toggleText.innerText = "Don't have an account?";
+                toggleBtn.innerText = "Register here";
+                primaryBtn.innerText = "SIGN IN";
+                nameField.classList.add('hidden');
+            }
+            clearAuthError();
+        }
+
+        function showAuthError(msg) {
+            const errBox = document.getElementById('authErrorMsg');
+            errBox.innerText = msg;
+            errBox.classList.remove('hidden');
+        }
+
+        function clearAuthError() {
+            const errBox = document.getElementById('authErrorMsg');
+            errBox.classList.add('hidden');
+            errBox.innerText = "";
+        }
+
+        function openAuthModal() {
+            const modal = document.getElementById('authModal');
+            modal.classList.remove('hidden');
+            
+            if (state.currentUser) {
+                document.getElementById('authProfileView').classList.remove('hidden');
+                document.getElementById('authFormView').classList.add('hidden');
+                
+                document.getElementById('profileDisplayName').innerText = state.currentUser.user_metadata?.display_name || "Gassy Member";
+                document.getElementById('profileEmail').innerText = state.currentUser.email;
+                document.getElementById('profileNicknameInput').value = state.currentUser.user_metadata?.display_name || "";
+            } else {
+                document.getElementById('authProfileView').classList.add('hidden');
+                document.getElementById('authFormView').classList.remove('hidden');
+            }
+        }
+
+        function closeAuthModal() {
+            document.getElementById('authModal').classList.add('hidden');
+            clearAuthError();
+        }
+
+        async function handleAuthSubmit() {
+            if (!supabaseClient) {
+                showAuthError("Database unconfigured. Cannot register accounts.");
+                return;
+            }
+            clearAuthError();
+            
+            const email = document.getElementById('authEmailInput').value.trim();
+            const password = document.getElementById('authPasswordInput').value.trim();
+            const displayName = document.getElementById('authNameInput').value.trim();
+
+            if (!email || !password) {
+                showAuthError("Please complete all email and password fields.");
+                return;
+            }
+
+            try {
+                if (state.isSignUpMode) {
+                    if (!displayName) {
+                        showAuthError("Please input a display nickname.");
+                        return;
+                    }
+                    const { data, error } = await supabaseClient.auth.signUp({
+                        email: email,
+                        password: password,
+                        options: {
+                            data: {
+                                display_name: displayName
+                            }
+                        }
+                    });
+                    if (error) throw error;
+                    
+                    showAuthError("Registered successfully! Verify email or enjoy login.");
+                } else {
+                    const { data, error } = await supabaseClient.auth.signInWithPassword({
+                        email: email,
+                        password: password
+                    });
+                    if (error) throw error;
+                }
+                closeAuthModal();
+            } catch (err) {
+                console.error("Authentication action failed:", err);
+                showAuthError(err.message || "An authentication error occurred.");
+            }
+        }
+
+        async function handleSignOut() {
+            if (!supabaseClient) return;
+            try {
+                await supabaseClient.auth.signOut();
+                closeAuthModal();
+            } catch (err) {
+                console.error("Failed to sign user out:", err);
+            }
+        }
+
+        async function updateUserNickname() {
+            if (!supabaseClient || !state.currentUser) return;
+            const newName = document.getElementById('profileNicknameInput').value.trim();
+            if (!newName) return;
+
+            try {
+                const { data, error } = await supabaseClient.auth.updateUser({
+                    data: { display_name: newName }
+                });
+                if (error) throw error;
+                
+                state.currentUser = data.user;
+                document.getElementById('profileDisplayName').innerText = newName;
+                updateAuthStatusDisplay();
+                showAuthError("Nickname updated successfully!");
+            } catch (err) {
+                console.error("Error changing metadata name:", err);
+                showAuthError(err.message || "Could not change nickname.");
+            }
+        }
+
+        function updateAuthStatusDisplay() {
+            const btnText = document.getElementById('profileBtnText');
+            const btnIcon = document.getElementById('profileBtnIcon');
+            const boardNotice = document.getElementById('leaderboardProfileNotice');
+
+            if (state.currentUser) {
+                const name = state.currentUser.user_metadata?.display_name || "Gassy Club Member";
+                btnText.innerText = name.toUpperCase();
+                btnIcon.innerText = "👑";
+                boardNotice.innerHTML = `Welcome back, <span class="text-emerald-950 font-cartoon">${name}</span>! Post your blasts!`;
+            } else {
+                btnText.innerText = "LOGIN";
+                btnIcon.innerText = "🔑";
+                boardNotice.innerText = "Login to post your scores on the public board!";
+            }
+        }
+
+        function setupAuthListener() {
+            if (!supabaseClient) return;
+            
+            // Get current initial session
+            supabaseClient.auth.getSession().then(({ data: { session } }) => {
+                state.currentUser = session ? session.user : null;
+                updateAuthStatusDisplay();
+            });
+
+            // Listen to auth changes
+            supabaseClient.auth.onAuthStateChange((_event, session) => {
+                state.currentUser = session ? session.user : null;
+                updateAuthStatusDisplay();
+            });
+        }
+
         // --- UTILITY MODALS & DRAWER TRIGGERS ---
 
         function toggleShop(open) {
@@ -1522,17 +1702,6 @@
                 lDrawer.classList.remove('translate-x-full');
             } else {
                 lDrawer.classList.add('translate-x-full');
-            }
-        }
-
-        function savePlayerName() {
-            const input = document.getElementById('playerNameInput');
-            const name = input.value.trim();
-            if (name) {
-                localStorage.setItem("gas_blast_player_name", name);
-                fetchLeaderboard();
-            } else {
-                input.placeholder = "Enter a name!";
             }
         }
 
@@ -1585,12 +1754,7 @@
             updateBellyScale();
             updateGasProgress();
             updateDashboardAndShop();
-
-            // Load saved nickname if exists
-            const savedName = localStorage.getItem("gas_blast_player_name");
-            if (savedName) {
-                document.getElementById('playerNameInput').value = savedName;
-            }
+            setupAuthListener();
         };
 
     </script>
