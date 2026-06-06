@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fart-O-Matic: Gus's Gas Blast! (EXTREME EDITION)</title>
+    <title>Fart-O-Matic: Gus's Gas Blast! (CLOUD CLAN)</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts for a cartoonish style -->
@@ -54,6 +54,12 @@
 
     <!-- Ambient Room Toxicity Fog Overlay -->
     <div id="toxicityFog" class="fixed inset-0 pointer-events-none bg-emerald-500/0 z-40 transition-colors duration-1000 mix-blend-color-burn"></div>
+
+    <!-- Cloud Syncing Status indicator -->
+    <div id="syncIndicator" class="fixed bottom-4 left-4 bg-slate-900/90 text-white border border-slate-700/50 backdrop-blur text-[10px] md:text-xs font-cartoon px-3 py-1.5 rounded-full z-50 flex items-center gap-1.5 shadow-lg transition-all duration-300 transform translate-y-20 opacity-0">
+        <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse" id="syncDot"></span>
+        <span id="syncText">CLOUD SYNCED</span>
+    </div>
 
     <!-- Top Dashboard Header -->
     <header class="p-3 md:p-4 flex flex-col sm:flex-row justify-between items-center w-full max-w-4xl mx-auto z-10 relative gap-3">
@@ -1023,6 +1029,7 @@
                     state.unlockedSkins.push(skinId);
                     document.getElementById('scoreText').innerText = state.score;
                     updateDashboardAndShop();
+                    saveUserDataToSupabase(); // Autosave skin purchase
                 } else {
                     showAuthError("Not enough points to unlock this skin!");
                     return;
@@ -1089,6 +1096,7 @@
 
             updateBellyScale();
             toggleSkins(false);
+            saveUserDataToSupabase(); // Autosave current skin selection
         }
 
         function updateBellyScale() {
@@ -1179,6 +1187,7 @@
                     changeRoomToxicity(0);
                     
                     document.getElementById('demandText').innerHTML = `☣️ <span class="text-red-500 font-cartoon">HAZMAT EVACUATION!</span> Double air fresheners deployed! (+500 BONUS)`;
+                    saveUserDataToSupabase(); // Save the hazard bonus points
                 }, 1000);
             }
         }
@@ -1233,6 +1242,7 @@
                 updateDashboardAndShop();
                 randomizeFoods(); 
                 playSynthSound('alarm', 750, 0.15);
+                saveUserDataToSupabase(); // Save upgrade purchased state
             } else {
                 showAuthError("You don't have enough points for upgrades!");
             }
@@ -1435,26 +1445,12 @@
 
             document.getElementById('scoreText').innerText = state.score;
 
-            if (supabaseClient && state.currentUser) {
-                uploadScoreToSupabase(state.score, releasedGas);
-            }
+            // Trigger cloud persistence
+            saveUserDataToSupabase();
 
             setTimeout(() => {
                 showFartModal(true);
             }, 600);
-        }
-
-        async function uploadScoreToSupabase(totalScore, singleBlastGas) {
-            if (!supabaseClient || !state.currentUser) return;
-            const name = state.currentUser.user_metadata?.display_name || "Gassy Guest";
-            try {
-                const { error } = await supabaseClient
-                    .from('leaderboard')
-                    .insert([{ player_name: name, score: totalScore, best_fart: singleBlastGas }]);
-                if (error) throw error;
-            } catch (err) {
-                console.error("Error inserting score to Supabase:", err);
-            }
         }
 
         async function fetchLeaderboard() {
@@ -1470,8 +1466,8 @@
             try {
                 listEl.innerHTML = `<div class="text-center text-xs text-gray-500 py-6 animate-pulse">Loading online scores...</div>`;
                 const { data, error } = await supabaseClient
-                    .from('leaderboard')
-                    .select('*')
+                    .from('user_profiles')
+                    .select('display_name, score, best_fart')
                     .order('score', { ascending: false })
                     .limit(10);
                 if (error) throw error;
@@ -1490,7 +1486,7 @@
                         <div class="bg-white p-2.5 rounded-xl border border-emerald-100 flex justify-between items-center shadow-sm">
                             <div class="flex items-center gap-2">
                                 <span class="text-sm">${badge}</span>
-                                <span class="text-xs font-cartoon text-emerald-950">${row.player_name}</span>
+                                <span class="text-xs font-cartoon text-emerald-950">${row.display_name || 'Gassy Guest'}</span>
                             </div>
                             <div class="text-right">
                                 <div class="text-xs font-cartoon text-orange-600">${row.score} pts</div>
@@ -1502,6 +1498,126 @@
             } catch (err) {
                 console.error("Error reading leaderboard:", err);
                 listEl.innerHTML = `<div class="text-center text-xs text-red-500 py-4">Failed to fetch scores. Check your DB policies.</div>`;
+            }
+        }
+
+        // --- TWO-WAY DATABASE SYNC ENGINE ---
+        
+        // Show status feedback for syncing
+        function showSyncStatus(text, statusType = 'syncing') {
+            const indicator = document.getElementById('syncIndicator');
+            const dot = document.getElementById('syncDot');
+            const label = document.getElementById('syncText');
+
+            indicator.classList.remove('translate-y-20', 'opacity-0');
+            label.innerText = text.toUpperCase();
+
+            if (statusType === 'syncing') {
+                dot.className = 'inline-block w-2 h-2 rounded-full bg-yellow-400 animate-spin';
+            } else if (statusType === 'saved') {
+                dot.className = 'inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse';
+                setTimeout(() => {
+                    indicator.classList.add('translate-y-20', 'opacity-0');
+                }, 2000);
+            } else {
+                dot.className = 'inline-block w-2 h-2 rounded-full bg-red-500';
+            }
+        }
+
+        // Load data from LocalStorage (Guest) or Supabase (User)
+        async function loadUserData() {
+            if (state.currentUser && supabaseClient) {
+                showSyncStatus('LOADING USER PROFILE...', 'syncing');
+                try {
+                    // Try to fetch profile from the user_profiles table
+                    const { data, error } = await supabaseClient
+                        .from('user_profiles')
+                        .select('*')
+                        .eq('id', state.currentUser.id)
+                        .maybeSingle();
+
+                    if (error) throw error;
+
+                    if (data) {
+                        // Profile exists! Hydrate game state
+                        state.score = data.score || 0;
+                        state.bestFart = data.best_fart || 0;
+                        state.unlockedSkins = data.unlocked_skins || ['classic'];
+                        state.currentSkin = data.current_skin || 'classic';
+                        state.upgrades = data.upgrades || { spicy: 0, soda: 0, golden_bean: 0 };
+                        
+                        showSyncStatus('PROFILE IMPORTED!', 'saved');
+                    } else {
+                        // Profile does not exist yet. Initialize it with current memory state or local storage
+                        showSyncStatus('CREATING NEW CLOUD PROFILE...', 'syncing');
+                        await saveUserDataToSupabase(true);
+                    }
+                } catch (err) {
+                    console.error("Error loading profile from Supabase:", err);
+                    showSyncStatus('LOAD ERROR', 'error');
+                }
+            } else {
+                // Fallback to local storage for guests
+                const localData = localStorage.getItem('gus_gas_guest_state');
+                if (localData) {
+                    try {
+                        const parsed = JSON.parse(localData);
+                        state.score = parsed.score || 0;
+                        state.bestFart = parsed.bestFart || 0;
+                        state.unlockedSkins = parsed.unlockedSkins || ['classic'];
+                        state.currentSkin = parsed.currentSkin || 'classic';
+                        state.upgrades = parsed.upgrades || { spicy: 0, soda: 0, golden_bean: 0 };
+                    } catch (e) {
+                        console.warn("Could not read local guest storage:", e);
+                    }
+                }
+            }
+
+            // Sync visual UI elements
+            document.getElementById('scoreText').innerText = state.score;
+            document.getElementById('bestFartText').innerText = state.bestFart;
+            selectSkin(state.currentSkin);
+            updateDashboardAndShop();
+        }
+
+        // Upload user state data to Supabase (or save to local storage if guest)
+        async function saveUserDataToSupabase(isFirstTime = false) {
+            if (state.currentUser && supabaseClient) {
+                showSyncStatus('SAVING TO CLOUD...', 'syncing');
+                const displayName = state.currentUser.user_metadata?.display_name || "Gassy Guest";
+                
+                const profilePayload = {
+                    id: state.currentUser.id,
+                    display_name: displayName,
+                    score: state.score,
+                    best_fart: state.bestFart,
+                    unlocked_skins: state.unlockedSkins,
+                    current_skin: state.currentSkin,
+                    upgrades: state.upgrades,
+                    updated_at: new Date().toISOString()
+                };
+
+                try {
+                    const { error } = await supabaseClient
+                        .from('user_profiles')
+                        .upsert(profilePayload);
+
+                    if (error) throw error;
+                    showSyncStatus('SAVED TO CLOUD', 'saved');
+                } catch (err) {
+                    console.error("Failed to upload active state to Supabase:", err);
+                    showSyncStatus('FAILED TO AUTO-SAVE', 'error');
+                }
+            } else {
+                // Save to local storage for guest session continuity
+                const localPayload = {
+                    score: state.score,
+                    bestFart: state.bestFart,
+                    unlockedSkins: state.unlockedSkins,
+                    currentSkin: state.currentSkin,
+                    upgrades: state.upgrades
+                };
+                localStorage.setItem('gus_gas_guest_state', JSON.stringify(localPayload));
             }
         }
 
@@ -1594,7 +1710,7 @@
                     });
                     if (error) throw error;
                     
-                    showAuthError("Registered successfully! Verify email or enjoy login.");
+                    showAuthError("Registered successfully! Check your email to confirm or log in.");
                 } else {
                     const { data, error } = await supabaseClient.auth.signInWithPassword({
                         email: email,
@@ -1613,7 +1729,10 @@
             if (!supabaseClient) return;
             try {
                 await supabaseClient.auth.signOut();
+                state.currentUser = null;
                 closeAuthModal();
+                // Reload default state
+                loadUserData();
             } catch (err) {
                 console.error("Failed to sign user out:", err);
             }
@@ -1634,6 +1753,7 @@
                 document.getElementById('profileDisplayName').innerText = newName;
                 updateAuthStatusDisplay();
                 showAuthError("Nickname updated successfully!");
+                saveUserDataToSupabase(); // Update profile row display name
             } catch (err) {
                 console.error("Error changing metadata name:", err);
                 showAuthError(err.message || "Could not change nickname.");
@@ -1658,18 +1778,23 @@
         }
 
         function setupAuthListener() {
-            if (!supabaseClient) return;
+            if (!supabaseClient) {
+                loadUserData(); // load guest data on startup if offline
+                return;
+            }
             
             // Get current initial session
             supabaseClient.auth.getSession().then(({ data: { session } }) => {
                 state.currentUser = session ? session.user : null;
                 updateAuthStatusDisplay();
+                loadUserData(); // Hydrate data according to guest or user
             });
 
             // Listen to auth changes
             supabaseClient.auth.onAuthStateChange((_event, session) => {
                 state.currentUser = session ? session.user : null;
                 updateAuthStatusDisplay();
+                loadUserData(); // Dynamic shift database profiles on login/logout
             });
         }
 
